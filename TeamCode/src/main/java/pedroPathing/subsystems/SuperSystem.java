@@ -1,4 +1,4 @@
-package pedroPathing.subsystems;
+/*package pedroPathing.subsystems;
 
 import androidx.annotation.NonNull;
 
@@ -18,7 +18,6 @@ public class SuperSystem {
     public static VerticalSystem verticalSystem;
     public static HorizontalArm horizontalArm;
     public static HorizontalHand horizontalHand;
-    public static HorizontalSliders horizontalSliders;
     public static VerticalPusher verticalPusher;
     //set up timers
     ElapsedTime clawTimer = new ElapsedTime();
@@ -383,7 +382,7 @@ public class SuperSystem {
 
          */
 
-    }
+    /*}
 
     public void setXRdy(){
         xReady = true;
@@ -506,3 +505,4 @@ public class SuperSystem {
         return horizontalSliders.getPositionMM();
     }
 }
+*/

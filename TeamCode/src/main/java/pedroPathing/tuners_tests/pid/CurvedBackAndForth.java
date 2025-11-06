@@ -1,4 +1,4 @@
-/*package pedroPathing.tuners_tests.pid;
+package pedroPathing.tuners_tests.pid;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -16,26 +16,14 @@ import com.pedropathing.pathgen.Point;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-@Disabled
-/**
- * This is the CurvedBackAndForth autonomous OpMode. It runs the robot in a specified distance
- * forward and to the left. On reaching the end of the forward Path, the robot runs the backward
- * Path the same distance back to the start. Rinse and repeat! This is good for testing a variety
- * of Vectors, like the drive Vector, the translational Vector, the heading Vector, and the
- * centripetal Vector. Remember to test your tunings on StraightBackAndForth as well, since tunings
- * that work well for curves might have issues going in straight lines.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/13/2024
+
 
 @Config
 @Autonomous (name = "Curved Back And Forth", group = "PIDF Testing")
 public class CurvedBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
-    public static double DISTANCE = 20;
+    public static double DISTANCE = 0;
 
     private boolean forward = true;
 
@@ -44,10 +32,6 @@ public class CurvedBackAndForth extends OpMode {
     private Path forwards;
     private Path backwards;
 
-    /**
-     * This initializes the Follower and creates the forward and backward Paths. Additionally, this
-     * initializes the FTC Dashboard telemetry.
-     *//*
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -71,7 +55,7 @@ public class CurvedBackAndForth extends OpMode {
     /**
      * This runs the OpMode, updating the Follower as well as printing out the debug statements to
      * the Telemetry, as well as the FTC Dashboard.
-     *//*
+     */
     @Override
     public void loop() {
         follower.update();
@@ -89,4 +73,3 @@ public class CurvedBackAndForth extends OpMode {
         follower.telemetryDebug(telemetryA);
     }
 }
-*/
