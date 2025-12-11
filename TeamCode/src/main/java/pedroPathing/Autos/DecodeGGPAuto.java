@@ -31,12 +31,12 @@ import pedroPathing.constants.LConstants;
         double startTime;
         private int pathState;
         //Start point
-        private final Pose startPose = new Pose(5, 81, Math.toRadians(180));
-        //line 1 ScorePreload 1
-        private final Pose scorePose = new Pose(49.4, 81, Math.toRadians(180));
+        private final Pose startPose = new Pose(72, 8, Math.toRadians(135));
+    //line 1 ScorePreload 1
+        private final Pose scorePose = new Pose(15.255, 118.352, Math.toRadians(180));
         //line 2 PushSample 1
-        private final Pose push1Pose = new Pose(13, 12, Math.toRadians(0));
-        private final Pose push1CP1 = new Pose(13, 81, Math.toRadians(0));
+        private final Pose push1Pose = new Pose(54.147, 89.350, Math.toRadians(0));
+        private final Pose push1CP1 = new Pose(41.406, 83.986, Math.toRadians(0));
         private final Pose push1CP2 = new Pose(8, 12, Math.toRadians(0));
         private final Pose push1CP3 = new Pose(70, 39, Math.toRadians(0));
         private final Pose push1CP4 = new Pose(180, 12, Math.toRadians(0));
@@ -78,7 +78,7 @@ import pedroPathing.constants.LConstants;
 
         public void buildPaths() {
             //line 1
-            scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
+            scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(scorePose)));
             scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 //line 2
             Push1 = new Path(new BezierCurve(new Point(scorePose), new Point(push1CP1), new Point(push1CP2), new Point(push1CP3), new Point(push1CP4), new Point(push1Pose)));

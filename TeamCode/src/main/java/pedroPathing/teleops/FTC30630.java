@@ -6,26 +6,20 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name = "BasicDecode", group = "Examples")
-public class BasicDecode extends OpMode {
+@TeleOp(name = "FTC30630", group = "Examples")
+public class FTC30630 extends OpMode {
     private Follower follower;
 
-    private static final int bankVelocity = 1000;
-    private static final int medVelocity = 1500;
+    private static final int bankVelocity = 1900;
+    private static final int medVelocity = 1900;
     private static final int farVelocity = 2000;
     private static final int maxVelocity = 2450;
     private static final int intakeVelocity = 1400;
@@ -37,20 +31,8 @@ public class BasicDecode extends OpMode {
     private Servo releasespinner;
     private Servo sort1;
     private Servo sort2;
-    private Servo leftled;
-    private Servo rightled;
-    private NormalizedColorSensor test_color;
-    double hue;
 
-void setSafePower(DcMotor motor,double targetPower0){
-    final double SLEW_RATE=0.2;
-    double currentPower=motor.getPower();
 
-    double desiredChange=currentPower;
-    double limitedChange=Math.max(-SLEW_RATE,Math.min(desiredChange,SLEW_RATE));
-
-    motor.setPower(currentPower += limitedChange);
-}
     private ElapsedTime runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_REV = 537.6898;   // goBilda 5202 Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 19.2032;     // goBilda 5202 Gear ratio reduction
@@ -74,9 +56,6 @@ void setSafePower(DcMotor motor,double targetPower0){
         spinner1 = hardwareMap.get(DcMotor.class, "spinner1");
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
         shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
-        test_color = hardwareMap.get(NormalizedColorSensor.class, "test_color");
-        rightled = hardwareMap.get(Servo.class,"rightled");
-        leftled = hardwareMap.get(Servo.class,"leftled");
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -97,29 +76,16 @@ void setSafePower(DcMotor motor,double targetPower0){
     public void start() {
         follower.startTeleopDrive();
     }
-            /**
-             * This is the main loop of the opmode and runs continuously after play
-             **/
-     public void loop() {
-        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+
+    /**
+     * This is the main loop of the opmode and runs continuously after play
+     **/
+    @Override
+    public void loop() {
+        follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
         follower.update();
 
-         telemetry.addData("Light Detected", ((OpticalDistanceSensor) test_color).getLightDetected());
-         NormalizedRGBA colors = test_color.getNormalizedColors();
-         hue = JavaUtil.colorToHue(colors.toColor());
-
-         //Determining the amount of red, green, and blue
-         telemetry.addData("Red", "%.3f", colors.red);
-         telemetry.addData("Green", "%.3f", colors.green);
-         telemetry.addData("Blue", "%.3f", colors.blue);
-
-         //Determining HSV and alpha
-         telemetry.addData("Hue", JavaUtil.colorToHue(colors.toColor()));
-         telemetry.addData("Saturation", "%.3f", JavaUtil.colorToSaturation(colors.toColor()));
-         telemetry.addData("Value", "%.3f", JavaUtil.colorToValue(colors.toColor()));
-         telemetry.addData("Alpha", "%.3f", colors.alpha);
-
-         /* Telemetry Outputs of our Follower */
+        /* Telemetry Outputs of our Follower */
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
@@ -130,33 +96,43 @@ void setSafePower(DcMotor motor,double targetPower0){
         telemetry.addData("Flywheel Velocity", ((DcMotorEx) shooter2).getVelocity());
         telemetry.update();
 
-        if (gamepad1.options) {
-            shooter2.setPower(-0.5);
+        if (gamepad2.options) {
+            shooter1.setPower(-0.5);
         } else if (gamepad1.circle) {
-            ((DcMotorEx) shooter2).setVelocity(bankVelocity);
+            ((DcMotorEx) shooter1).setVelocity(bankVelocity + 1450);
+            ((DcMotorEx) shooter2).setVelocity(bankVelocity - 1300);
             if (((DcMotorEx) shooter1).getVelocity() >= bankVelocity - 5) {
                 intake.setPower(1);
             } else {
                 intake.setPower(0);
             }
-        } else if (gamepad1.cross) {
-            ((DcMotorEx) shooter2).setVelocity(medVelocity );
+        } else if (gamepad2.cross) {
+            ((DcMotorEx) shooter1).setVelocity(medVelocity);
+            ((DcMotorEx) shooter2).setVelocity(medVelocity - 640);
             if (((DcMotorEx) shooter1).getVelocity() >= medVelocity - 5) {
                 intake.setPower(1);
             } else {
                 intake.setPower(0);
             }
-        } else if (gamepad1.triangle) {
-                ((DcMotorEx) shooter2).setVelocity(farVelocity);
+        } else if (gamepad2.triangle) {
+                ((DcMotorEx) shooter1).setVelocity(farVelocity);
+                ((DcMotorEx) shooter2).setVelocity(farVelocity - 500);
                 if (((DcMotorEx) shooter1).getVelocity() >= farVelocity - 5) {
                     intake.setPower(1);
                 } else {
                     intake.setPower(0);
                 }
-        } else if (gamepad1.square) {
+        } else if (gamepad2.square) {
+            ((DcMotorEx) shooter1).setVelocity(maxVelocity);
             ((DcMotorEx) shooter2).setVelocity(bankVelocity);
             if (((DcMotorEx) shooter1).getVelocity() >= maxVelocity - 16) {
                 intake.setPower(1);
+            } else {
+                intake.setPower(0);
+            }
+        } else if (gamepad2.right_bumper) {
+            ((DcMotorEx) intake).setVelocity(intakeVelocity -2400);
+           if (((DcMotorEx) intake).getVelocity() >= intakeVelocity - 2000) {
             } else {
                 intake.setPower(0);
             }
@@ -168,21 +144,18 @@ void setSafePower(DcMotor motor,double targetPower0){
             intake.setPower(0);
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-            if (gamepad1.dpad_right) {// intakes balls
+            if (gamepad2.dpad_right) {// intakes balls
                 intake.setPower(1);
             } else {
                 intake.setPower(0);
             }
             //----------------------------------------------------------------------------
-            if (gamepad1.left_bumper) {// outtakes balls
-                intake.setPower(-1);
+            if (gamepad2.left_bumper) {// outtakes balls
+                intake.setPower(1);
             } else {
                 intake.setPower(0);
             }
-            if (hue < 350){
-                telemetry.addData("Color", "Purple");
-
-
+            if (gamepad2.dpad_left) {
             }
             if (gamepad2.dpad_right) {
             }
@@ -196,3 +169,5 @@ void setSafePower(DcMotor motor,double targetPower0){
         /** We do not use this because everything automatically should disable **/
     }
 }
+
+
