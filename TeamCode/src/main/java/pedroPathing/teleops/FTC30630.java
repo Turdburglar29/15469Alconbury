@@ -25,12 +25,9 @@ public class FTC30630 extends OpMode {
     private static final int intakeVelocity = 1400;
     private final Pose startPose = new Pose(0, 0, 0);
     public static DcMotor intake;
-    public static DcMotor spinner1;
     private DcMotor shooter1;
     private DcMotor shooter2;
-    private Servo releasespinner;
-    private Servo sort1;
-    private Servo sort2;
+
 
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -53,7 +50,6 @@ public class FTC30630 extends OpMode {
         follower.setStartingPose(startPose);
         telemetry.update();
         intake = hardwareMap.get(DcMotor.class, "intake");
-        spinner1 = hardwareMap.get(DcMotor.class, "spinner1");
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
         shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

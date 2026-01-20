@@ -3,11 +3,11 @@ package pedroPathing.teleops;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -15,16 +15,19 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name = "BasicDecode", group = "Examples")
-public class BasicDecode extends OpMode {
+@TeleOp(name = "LimelightTest", group = "Examples")
+public class LimeLightTest extends OpMode {
     private Follower follower;
+
+    private Limelight3A LimeLight;
     private ElapsedTime shotTimer = new ElapsedTime();
-    private static final int IDLVelocity = 350;
+    private static final int IDLVelocity = 200;
     private static final int bankVelocity = 500;
     private static final int medVelocity = 750;
     private static final int farVelocity = 1000;
@@ -74,6 +77,8 @@ void setSafePower(DcMotor motor,double targetPower0){
         follower.setStartingPose(startPose);
         telemetry.update();
         intake = hardwareMap.get(DcMotor.class, "intake");
+        LimeLight = hardwareMap.get(Limelight3A.class,"LimeLight");
+        LimeLight.pipelineSwitch(8);
         spinner1 = hardwareMap.get(DcMotor.class, "spinner1");
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
         shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
@@ -157,7 +162,7 @@ void setSafePower(DcMotor motor,double targetPower0){
              } else {
                  intake.setPower(0);
              }
-             if (shotTimer.milliseconds() > 3700) {
+             if (shotTimer.milliseconds() > 3500) {
                  BootKick.setPosition(0.6);
              }
 // ------------------------------------------------------------------
@@ -192,8 +197,8 @@ void setSafePower(DcMotor motor,double targetPower0){
                 intake.setPower(0);
             }
         } else {
-            ((DcMotorEx) shooter1).setVelocity(IDLVelocity);
-            ((DcMotorEx) shooter2).setVelocity(IDLVelocity);
+            ((DcMotorEx) shooter1).setVelocity(200);
+            ((DcMotorEx) shooter2).setVelocity(200);
             shooter1.setPower(0);
             shooter2.setPower(0);
             intake.setPower(0);
