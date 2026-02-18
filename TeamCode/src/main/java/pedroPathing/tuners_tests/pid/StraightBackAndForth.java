@@ -14,8 +14,8 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 
-import pedroPathing.constants.FConstants30630;
-import pedroPathing.constants.LConstants30630;
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 /**
  * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
@@ -51,7 +51,7 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants30630.class, LConstants30630.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
 
         forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));

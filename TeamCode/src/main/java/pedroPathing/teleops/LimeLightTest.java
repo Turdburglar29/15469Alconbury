@@ -1,8 +1,11 @@
 package pedroPathing.teleops;
 
+import static java.util.Objects.*;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -17,6 +20,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
+
+import java.util.Objects;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -78,7 +83,7 @@ void setSafePower(DcMotor motor,double targetPower0){
         telemetry.update();
         intake = hardwareMap.get(DcMotor.class, "intake");
         LimeLight = hardwareMap.get(Limelight3A.class,"LimeLight");
-        LimeLight.pipelineSwitch(8);
+        LimeLight.pipelineSwitch(1);
         spinner1 = hardwareMap.get(DcMotor.class, "spinner1");
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
         shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
@@ -112,6 +117,23 @@ void setSafePower(DcMotor motor,double targetPower0){
              * This is the main loop of the opmode and runs continuously after play
              **/
      public void loop() {
+
+         // while teleop/auto is active
+         LLResult result = LimeLight.getLatestResult();
+         if (result != null && result.isValid()) {//checks for april tag
+             double tx = result.getTx(); // How far left or right the target is (degrees)
+             double ty = result.getTy(); // How far up or down the target is (degrees)
+             double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+             telemetry.addData("Target X", tx);//Yaw
+             telemetry.addData("Target Y", ty);//Pitch
+             telemetry.addData("Target Area", ta);
+         } else {
+             telemetry.addData("Limelight", "No Targets");
+             shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Can be changed to face the front of the robot but break would be better for finding april tag after defence potentialy???
+
+         }
+
          follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
          follower.update();
 
@@ -197,9 +219,7 @@ void setSafePower(DcMotor motor,double targetPower0){
                 intake.setPower(0);
             }
         } else {
-            ((DcMotorEx) shooter1).setVelocity(200);
             ((DcMotorEx) shooter2).setVelocity(200);
-            shooter1.setPower(0);
             shooter2.setPower(0);
             intake.setPower(0);
 

@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import pedroPathing.constants.FConstants30630;
-import pedroPathing.constants.LConstants30630;
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 /**
  * This is the ForwardZeroPowerAccelerationTuner autonomous follower OpMode. This runs the robot
@@ -76,7 +76,7 @@ public class ForwardZeroPowerAccelerationTuner extends OpMode {
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants30630.class, LConstants30630.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap);
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
@@ -114,10 +114,10 @@ public class ForwardZeroPowerAccelerationTuner extends OpMode {
      */
     @Override
     public void start() {
-        leftFront.setPower(-1);
-        leftRear.setPower(-1);
-        rightFront.setPower(-1);
-        rightRear.setPower(-1);
+        leftFront.setPower(1);
+        leftRear.setPower(1);
+        rightFront.setPower(1);
+        rightRear.setPower(1);
     }
 
     /**

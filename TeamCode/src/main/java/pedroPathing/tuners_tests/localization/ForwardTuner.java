@@ -12,8 +12,8 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 
-import pedroPathing.constants.FConstants30630;
-import pedroPathing.constants.LConstants30630;
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 /**
  * This is the ForwardTuner OpMode. This tracks the forward movement of the robot and displays the
@@ -43,7 +43,7 @@ public class ForwardTuner extends OpMode {
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants30630.class, LConstants30630.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);

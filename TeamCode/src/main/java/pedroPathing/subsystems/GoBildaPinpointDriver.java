@@ -69,6 +69,9 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
         return "goBILDA® Pinpoint Odometry Computer";
     }
 
+    public void updatePublishingPose(Pose2D pose2D) {
+    }
+
 
     //Register map of the i2c device
     private enum Register {

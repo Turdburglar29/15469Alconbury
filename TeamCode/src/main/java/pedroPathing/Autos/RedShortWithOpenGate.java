@@ -3,7 +3,6 @@ package pedroPathing.Autos;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
@@ -15,20 +14,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "RedShort", group = "Auto")
+@Autonomous(name = "RedShortWithOpenGate", group = "Auto")
 
-    public class RedShort extends OpMode {
+    public class RedShortWithOpenGate extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int IDLVelocity = 500;
     private static final int bankVelocity = 1000;
@@ -74,32 +68,31 @@ import pedroPathing.constants.LConstants;
     //line 1 ScorePreload 1 ------------------------------------------------------------------------
         private final Pose scorePose = new Pose(32, 30, Math.toRadians(225));
     //Line 3 Pickup 1-------------------------------------------------------------------------------
-        private final Pose pickup1Pose = new Pose(17, 60, Math.toRadians(180));
-        private final Pose pickup1CP1 = new Pose(70, 63, Math.toRadians(180));
-        private final Pose pickup1CP2 = new Pose(70, 60, Math.toRadians(180));
+        private final Pose pickup1Pose = new Pose(20, 60, Math.toRadians(180));
+        private final Pose pickup1CP1 = new Pose(60, 60, Math.toRadians(155));
     //line 4 Score 1 -------------------------------------------------------------------------------
         private final Pose score1Pose = new Pose(32, 30, Math.toRadians(225));
     //line 6 Pickup  2 -----------------------------------------------------------------------------
-        private final Pose pickup2Pose = new Pose(15, 80, Math.toRadians(180));
-        private final Pose pickup2CP1 = new Pose(70, 90, Math.toRadians(180));
-        private final Pose pickup2CP2 = new Pose(70, 85, Math.toRadians(180));
+        private final Pose pickup2Pose = new Pose(18, 90, Math.toRadians(180));
+        private final Pose pickup2CP1 = new Pose(50, 90, Math.toRadians(180));
+        private final Pose pickup2CP2 = new Pose(30, 90, Math.toRadians(180));
     //line 7 Push Bar ------------------------------------------------------------------------------
         private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(180));
         private final Pose pushBarCP1 = new Pose(25, 80, Math.toRadians(180));
     //line 8 Score  2 ------------------------------------------------------------------------------
         private final Pose score2Pose = new Pose(32, 30, Math.toRadians(225));
-        private final Pose score2CP1 = new Pose(35,75, Math.toRadians(180));
-        private final Pose score2CP2 = new Pose(30, 40, Math.toRadians(190));
+        private final Pose score2CP1 = new Pose(25,70, Math.toRadians(180));
+        private final Pose score2CP2 = new Pose(30, 60, Math.toRadians(190));
     //line 9 Pickup  3------------------------------------------------------------------------------
-        //private final Pose pickup3Pose = new Pose(17, 115, Math.toRadians(180));
-        //private final Pose pickup3CP1 = new Pose(50, 90, Math.toRadians(180));
-       // private final Pose pickup3CP2 = new Pose(45, 110, Math.toRadians(180));
+        private final Pose pickup3Pose = new Pose(17, 115, Math.toRadians(180));
+        private final Pose pickup3CP1 = new Pose(50, 90, Math.toRadians(180));
+        private final Pose pickup3CP2 = new Pose(45, 110, Math.toRadians(180));
     //line 10 Score 3-------------------------------------------------------------------------------
-       // private final Pose score3Pose = new Pose(32, 30, Math.toRadians(225));
-      //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
-      //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
+        private final Pose score3Pose = new Pose(32, 30, Math.toRadians(225));
+        private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
+        private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-        private final Pose park = new Pose(28, 68.5, Math.toRadians(180));
+        private final Pose park = new Pose(37, 75, Math.toRadians(180));
     //  private PathChain ;-------------------------------------------------------------------------
         private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +101,7 @@ import pedroPathing.constants.LConstants;
             scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(scorePose)));
             scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 //Line 2 ---------------------------------------------------------------------------------------------------------------
-            Pickup1 = new Path(new BezierCurve(new Point(scorePose), new Point(pickup1CP1), new Point(pickup1CP2), new Point(pickup1Pose)));
+            Pickup1 = new Path(new BezierCurve(new Point(scorePose), new Point(pickup1CP1), new Point(pickup1Pose)));
             Pickup1.setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading());
 //line 3 ---------------------------------------------------------------------------------------------------------------
             Score1 = new Path(new BezierCurve(new Point(pickup1Pose), new Point(score1Pose)));
@@ -117,26 +110,27 @@ import pedroPathing.constants.LConstants;
             Pickup2 = new Path(new BezierCurve(new Point(score1Pose), new Point(pickup2CP1), new Point(pickup2CP2), new Point(pickup2Pose)));
             Pickup2.setLinearHeadingInterpolation(score1Pose.getHeading(), pickup2Pose.getHeading());
 //line 5 ----------------------------------------------------------------------------------------------------------------------------------
-            //PushBar = new Path(new BezierCurve(new Point(pickup2Pose), new Point(pushBarCP1), new Point(pushBarPose)));
-            //PushBar.setLinearHeadingInterpolation(pickup2Pose.getHeading(), pushBarPose.getHeading());
+            PushBar = new Path(new BezierCurve(new Point(pickup2Pose), new Point(pushBarCP1), new Point(pushBarPose)));
+            PushBar.setLinearHeadingInterpolation(pickup2Pose.getHeading(), pushBarPose.getHeading());
 //line 6 ----------------------------------------------------------------------------------------------------------------------------------
-            Score2 = new Path(new BezierCurve(new Point(pickup2Pose), new Point(score2CP1), new Point(score2CP2), new Point(score2Pose)));
-            Score2.setLinearHeadingInterpolation(pickup2Pose.getHeading(), score2Pose.getHeading());
+            Score2 = new Path(new BezierCurve(new Point(pushBarPose), new Point(score2CP1), new Point(score2CP2), new Point(score2Pose)));
+            Score2.setLinearHeadingInterpolation(pushBarPose.getHeading(), score2Pose.getHeading());
 //line 7 ----------------------------------------------------------------------------------------------------------------------------------
-            //Pickup3 = new Path(new BezierCurve(new Point(score2Pose), new Point(pickup3CP1), new Point(pickup3CP2), new Point(pickup3Pose)));
-           //Pickup3.setLinearHeadingInterpolation(score2Pose.getHeading(), pickup3Pose.getHeading());
+            Pickup3 = new Path(new BezierCurve(new Point(score2Pose), new Point(pickup3CP1), new Point(pickup3CP2), new Point(pickup3Pose)));
+            Pickup3.setLinearHeadingInterpolation(score2Pose.getHeading(), pickup3Pose.getHeading());
 //line 8 ----------------------------------------------------------------------------------------------------------------------------------
-            //Score3 = new Path(new BezierCurve(new Point(pickup3Pose), new Point(score3CP1), new Point(score3CP2), new Point(score3Pose)));
-           // Score3.setLinearHeadingInterpolation(pickup3Pose.getHeading(), score3Pose.getHeading());
+            Score3 = new Path(new BezierCurve(new Point(pickup3Pose), new Point(score3CP1), new Point(score3CP2), new Point(score3Pose)));
+            Score3.setLinearHeadingInterpolation(pickup3Pose.getHeading(), score3Pose.getHeading());
 //line 9 ----------------------------------------------------------------------------------------------------------------------------------
-            Park = new Path(new BezierCurve(new Point(score2Pose), new Point(park)));
-            Park.setLinearHeadingInterpolation(score2Pose.getHeading(), park.getHeading());
+            Park = new Path(new BezierCurve(new Point(score3Pose), new Point(park)));
+            Park.setLinearHeadingInterpolation(score3Pose.getHeading(), park.getHeading());
 
         }
         public void autonomousPathUpdate() {
             switch (pathState) {
                 case 0:
                     follower.followPath(scorePreload, true);
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                     setPathState(1);
                     shotTimer.reset();
                     break; // --------------------------------------Shoots balls1--------------------------------------------
@@ -146,7 +140,7 @@ import pedroPathing.constants.LConstants;
                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                             intake.setPower(1);
                     }
-                    if(shotTimer.milliseconds() > 2700) {
+                    if(shotTimer.milliseconds() > 2100) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.5);
                         }
@@ -158,57 +152,52 @@ import pedroPathing.constants.LConstants;
                     break; // --------------------------------------Picks up 1st line ---------------------------------------
                 case 2:
                     follower.followPath(Pickup1, true);
-                    ((DcMotorEx) flywheel).setVelocity(0);//turns shooter off
+                    ((DcMotorEx) flywheel).setVelocity(IDLVelocity);//turns shooter off
                     setPathState(3);
                     break; // -------------------------------------------------------------------------------------------
                 case 3:
                     ballrelease.setPosition(0.45);
-                    follower.setMaxPower(0.6);
+                    follower.setMaxPower(0.5);
                     if(slowDownTimer.milliseconds() > 1000 ){
-                        follower.setMaxPower(0.4);
+                        follower.setMaxPower(.5);
                         intake.setPower(1);
                     }
                     intake.setPower(1); //turns intake on
                     if (!follower.isBusy()) {
                         setPathState(4);
-                        follower.setMaxPower(0.4);
+                        follower.setMaxPower(0.5);
                     }
                     break; // -------------------------------------Moves to Score--------------------------------
                 case 4:
-                    follower.setMaxPower(0.95);
+                    follower.setMaxPower(1);
                     follower.followPath(Score1, true);
                     ballrelease.setPosition(0.3);
                     intake.setPower(0);
                     flywheel.setPower(0);
                     setPathState(5);//starts shooter
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                     shotTimer.reset();
 
 
                     break; // --------------------------------Shots Balls2-------------------------------------------
                 case 5:
-                    if (!follower.isBusy()) {
-                        //starts shooter
+                    if (!follower.isBusy()) {//starts shooter
                         ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
-                            ballrelease.setPosition(0.3);
+                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                             intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
+                            ballrelease.setPosition(0.3);
                         }
-                        if(slowDownTimer.milliseconds() > 2000 ){
-                            ((DcMotorEx) flywheel).setVelocity(bankVelocity);
-                        }
-
                     }
-                    if(shotTimer.milliseconds() > 4000)  {
+                    if(shotTimer.milliseconds() > 3400) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.5);
                     }
-                    if(shotTimer.milliseconds() > 4800) {
+                    if(shotTimer.milliseconds() > 4100) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                        BootKick.setPosition(0.0);
+                        BootKick.setPosition(0);
                         setPathState(6);
                     }
-                    slowDownTimer.reset();
                     break; // -----------------------------------Picks up 2nd Line----------------------------------------
                 case 6:
                     follower.followPath(Pickup2, true);
@@ -219,8 +208,7 @@ import pedroPathing.constants.LConstants;
                     break; // -------------------------------------------------------------------------------------------
                 case 7:
                     if(slowDownTimer.milliseconds() > 1600) {
-                        ballrelease.setPosition(0.45);
-                        follower.setMaxPower(.4);
+                        follower.setMaxPower(.5);
                         intake.setPower(1);
                     }
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
@@ -229,11 +217,11 @@ import pedroPathing.constants.LConstants;
                         intake.setPower(0);
                     }
                     break; // ----------------------------------Hits Push Bar-----------------------------------
-                case 8:
-                    follower.setMaxPower(0.95);
+               // case 8:
+                   // follower.setMaxPower(.5);
                     /* follower.followPath(PushBar, true);*/
-                    setPathState(9);
-                    break; // -------------------------------------------------------------------------------------------
+                  //  setPathState(9);
+                 //   break; // -------------------------------------------------------------------------------------------
                 case 9:
 
                     if (!follower.isBusy()) {
@@ -244,26 +232,25 @@ import pedroPathing.constants.LConstants;
                 case 10:
                     led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
                     intake.setPower(0);
-                    follower.setMaxPower(0.95);
+                    follower.setMaxPower(1);
                     follower.followPath(Score2, true);
                     setPathState(11);
                     shotTimer.reset();
-                    break; // --------------------------------Shots Balls3--------------------------------------------
+                    break; // --------------------------------Shots Balls--------------------------------------------
                 case 11:
-                    ballrelease.setPosition(0.3);
                     if (!follower.isBusy()) {
                         //starts shooter
                         ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                             intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
+                            ballrelease.setPosition(0.3);
                         }
                     }
-                    if(shotTimer.milliseconds() > 5200) {
+                    if(shotTimer.milliseconds() > 2100) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.5);
                     }
-                    if(shotTimer.milliseconds() > 5700) {
+                    if(shotTimer.milliseconds() > 3700) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                         BootKick.setPosition(0.0);
                         setPathState(12);
@@ -271,11 +258,11 @@ import pedroPathing.constants.LConstants;
                     slowDownTimer.reset();
                     break; // -------------------------------Picks up 3rd Line--------------------------------------------
                 case 12:
-                    follower.followPath(Park, true);
+                    follower.followPath(Pickup3, true);
                     intake.setPower(0);
                      //turns shooter off
                     flywheel.setPower(0);
-                    setPathState(17);
+                    setPathState(13);
                     slowDownTimer.reset();
                     break; // -------------------------------------------------------------------------------------------
                 case 13:
@@ -290,7 +277,7 @@ import pedroPathing.constants.LConstants;
                     }
                     break; // -------------------------------------------------------------------------------------------
                 case 14:
-                    follower.setMaxPower(0.95);
+                    follower.setMaxPower(1);
                     follower.followPath(Score3, true);
                     setPathState(15);
                     shotTimer.reset();
@@ -302,7 +289,6 @@ import pedroPathing.constants.LConstants;
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                             led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                             intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
 
                         }
                     }
@@ -354,7 +340,7 @@ import pedroPathing.constants.LConstants;
             telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
             /*/Tells you Flywheel Velocity */
-            telemetry.addData("intake Velocity", ((DcMotorEx) intake).getVelocity());
+            telemetry.addData("Intake Velocity", ((DcMotorEx) intake).getVelocity());
             //telemetry.addData("Flywheel Velocity", ((DcMotorEx) shooter1).getVelocity());
             telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel).getVelocity());
             telemetry.update();

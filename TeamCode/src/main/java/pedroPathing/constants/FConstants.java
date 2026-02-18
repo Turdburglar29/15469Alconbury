@@ -23,11 +23,11 @@ public class FConstants {
         FollowerConstants.mass = 6
         ; //robot mass in kg - Its a Fatty Fat...FAT FAT
 
-        FollowerConstants.xMovement = 73.5669; // 61.043622825611145 at 255 2/17
-        FollowerConstants.yMovement = 46.10735; // 42.621403162065704 at 255 2/17 43.6631
+        FollowerConstants.xMovement = 102.531; // 61.043622825611145 at 255 2/17
+        FollowerConstants.yMovement = 77.5821; // 42.621403162065704 at 255 2/17 43.6631
 
-        FollowerConstants.forwardZeroPowerAcceleration = -19.1767; // -27.941003214676822 at 255 2/17
-        FollowerConstants.lateralZeroPowerAcceleration = -41.5858; // -82.32803462012504 at 255 2/17
+        FollowerConstants.forwardZeroPowerAcceleration = -49.1767; // -27.941003214676822 at 255 2/17
+        FollowerConstants.lateralZeroPowerAcceleration = -61.5858; // -82.32803462012504 at 255 2/17
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.15,0.0001,0.001,0); // 0.2,0.0001,0.01,0 at 255 2/17
         FollowerConstants.useSecondaryTranslationalPID = false;
