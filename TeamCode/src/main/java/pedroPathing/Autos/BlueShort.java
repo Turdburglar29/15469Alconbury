@@ -93,7 +93,7 @@ import pedroPathing.constants.LConstants;
       //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
       //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-        private final Pose park = new Pose(22.5, 55.36, Math.toRadians(180));
+        private final Pose park = new Pose(22.5, 54, Math.toRadians(180));
     //  private PathChain ;-------------------------------------------------------------------------
         private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ import pedroPathing.constants.LConstants;
                         BootKick.setPosition(0.5);
                         }
                     if(shotTimer.milliseconds() > 3700) {
-                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0);
                         setPathState(2);
                     }
@@ -190,14 +190,13 @@ import pedroPathing.constants.LConstants;
                         if(slowDownTimer.milliseconds() > 2000 ){
                             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                         }
-
                     }
                     if(shotTimer.milliseconds() > 4000)  {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.5);
                     }
                     if(shotTimer.milliseconds() > 4800) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.0);
                         setPathState(6);
                     }
@@ -256,7 +255,7 @@ import pedroPathing.constants.LConstants;
                         BootKick.setPosition(0.5);
                     }
                     if(shotTimer.milliseconds() > 5700) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.0);
                         setPathState(12);
                     }
@@ -302,7 +301,7 @@ import pedroPathing.constants.LConstants;
                         BootKick.setPosition(0.5);
                     }
                     if(shotTimer.milliseconds() > 4400) {
-                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.0);
                         setPathState(16);
                     }
@@ -350,7 +349,7 @@ import pedroPathing.constants.LConstants;
             telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel).getVelocity());
             telemetry.update();
 
-          led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+          led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET);
         }
 
         @Override

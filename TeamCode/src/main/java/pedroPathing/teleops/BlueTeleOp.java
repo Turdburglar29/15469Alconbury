@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
+import pedroPathing.constants.LConstantsTeleop;
 
 @TeleOp(name = "BlueTeleOp", group = "BlueTeleOp")
 public class BlueTeleOp extends OpMode {
@@ -45,7 +45,7 @@ public class BlueTeleOp extends OpMode {
     static final double FILTER_ALPHA = 0.10;
 
     static final double GOAL_X = 10.0;
-    static final double GOAL_Y = 127.0;
+    static final double GOAL_Y = 137.0;
 
     private double filteredTargetAngle = 0.0;
 
@@ -62,7 +62,7 @@ public class BlueTeleOp extends OpMode {
     /* ================= INIT ================= */
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(30, 75, Math.toRadians(180)));

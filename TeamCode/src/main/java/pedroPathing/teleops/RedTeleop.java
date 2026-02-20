@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
+import pedroPathing.constants.LConstantsTeleop;
 
 @TeleOp(name = "RedTeleop", group = "RedTeleOp")
 public class RedTeleop extends OpMode {
@@ -28,6 +28,7 @@ public class RedTeleop extends OpMode {
     private Servo ballrelease;
     private Servo BootKick;
     private RevBlinkinLedDriver led;
+    private ElapsedTime ParkNowTimer = new ElapsedTime();
 
     /* ================= TURRET CONSTANTS ================= */
     static final double TICKS_PER_REV = 537.6898;
@@ -61,7 +62,7 @@ public class RedTeleop extends OpMode {
     /* ================= INIT ================= */
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(120, 75, Math.toRadians(0)));
@@ -94,7 +95,6 @@ public class RedTeleop extends OpMode {
         follower.startTeleopDrive();
         filteredTargetAngle = 0.0;
     }
-
     @Override
     public void loop() {
         /* ---------------- DRIVE ---------------- */
@@ -105,6 +105,8 @@ public class RedTeleop extends OpMode {
                 false
         );
         follower.update();
+        if (ParkNowTimer.milliseconds() >= 115000)
+            gamepad1.rumble(2000);
 
         /* ---------------- TURRET AUTO AIM Variables ---------------- */
         Pose pose = follower.getPose();
