@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class BlueTurretTracker {
 
-    public final double TICKS_PER_REV = 537.6898;   // GoBILDA 312 RPM
+    public final double TICKS_PER_REV = 537.7;   // GoBILDA 312 RPM
     public final double GEAR_RATIO = 62.0 / 14.0;
     public final double TICKS_PER_RAD = (TICKS_PER_REV * GEAR_RATIO) / (2.0 * Math.PI);
 

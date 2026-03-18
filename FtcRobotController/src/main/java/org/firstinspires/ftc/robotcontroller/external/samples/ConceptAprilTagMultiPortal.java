@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -41,15 +40,18 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 /**
  * This OpMode demonstrates the basics of using multiple vision portals simultaneously
  */
-@TeleOp(name = "Concept: AprilTagMultiPortal", group = "Concept")
 @Disabled
+@TeleOp(name = "Concept: AprilTagMultiPortal", group = "Concept")
+
 public class ConceptAprilTagMultiPortal extends LinearOpMode
 {
     VisionPortal portal1;
     VisionPortal portal2;
+    VisionPortal portal3;
 
     AprilTagProcessor aprilTagProcessor1;
     AprilTagProcessor aprilTagProcessor2;
+    AprilTagProcessor aprilTagProcessor3;
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -64,6 +66,7 @@ public class ConceptAprilTagMultiPortal extends LinearOpMode
         // NB: the array is 2 long because we asked for 2 portals up above.
         int portal1ViewId = viewIds[0];
         int portal2ViewId = viewIds[1];
+        int portal3ViewId = viewIds[2];
 
         // If we want to run AprilTag detection on two portals simultaneously,
         // we need to create two distinct instances of the AprilTag processor,
@@ -72,6 +75,7 @@ public class ConceptAprilTagMultiPortal extends LinearOpMode
         // the ConceptAprilTag OpMode.
         aprilTagProcessor1 = AprilTagProcessor.easyCreateWithDefaults();
         aprilTagProcessor2 = AprilTagProcessor.easyCreateWithDefaults();
+        aprilTagProcessor3 = AprilTagProcessor.easyCreateWithDefaults();
 
         // Now we build both portals. The CRITICAL thing to notice here is the call to
         // setLiveViewContainerId(), where we pass in the IDs we received earlier from
@@ -86,6 +90,11 @@ public class ConceptAprilTagMultiPortal extends LinearOpMode
                 .setLiveViewContainerId(portal2ViewId)
                 .addProcessor(aprilTagProcessor2)
                 .build();
+        portal3 = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 3"))
+                .setLiveViewContainerId(portal3ViewId)
+                .addProcessor(aprilTagProcessor3)
+                .build();
 
         waitForStart();
 
@@ -97,6 +106,7 @@ public class ConceptAprilTagMultiPortal extends LinearOpMode
             // can get back from the processor, you should look at ConceptAprilTag.
             telemetry.addData("Number of tags in Camera 1", aprilTagProcessor1.getDetections().size());
             telemetry.addData("Number of tags in Camera 2", aprilTagProcessor2.getDetections().size());
+            telemetry.addData("Number of tags in Camera 3", aprilTagProcessor3.getDetections().size());
             telemetry.update();
             sleep(20);
         }

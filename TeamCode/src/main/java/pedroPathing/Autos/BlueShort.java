@@ -25,7 +25,7 @@ import pedroPathing.constants.LConstants;
     public class BlueShort extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int IDLVelocity = 500;
-    private static final int bankVelocity = 1000;
+    private static final int bankVelocity = 750;
     private static final int medVelocity = 750;
     private static final int farVelocity = 1000;
     private static final int maxVelocity = 2000;
@@ -34,6 +34,8 @@ import pedroPathing.constants.LConstants;
     private DcMotor kickstand;
     private DcMotor turret;
     private DcMotor flywheel;
+    private DcMotor flywheel2;
+
     private Servo sort1;
     private Servo sort2;
     private Servo BootKick;
@@ -68,14 +70,14 @@ import pedroPathing.constants.LConstants;
     //line 1 ScorePreload 1 ------------------------------------------------------------------------
         private final Pose scorePose = new Pose(21.68, 96.6776, Math.toRadians(135));
     //Line 3 Pickup 1-------------------------------------------------------------------------------
-        private final Pose pickup1Pose = new Pose(10.5, 65.5, Math.toRadians(180));
+        private final Pose pickup1Pose = new Pose(9, 65.5, Math.toRadians(180));
         private final Pose pickup1CP1 = new Pose(50, 65, Math.toRadians(180));
         private final Pose pickup1CP2 = new Pose(40, 65.5, Math.toRadians(180));
     //line 4 Score 1 -------------------------------------------------------------------------------
         private final Pose score1Pose = new Pose(21.68, 96.6776, Math.toRadians(135));
     //line 6 Pickup  2 -----------------------------------------------------------------------------
-        private final Pose pickup2Pose = new Pose(5, 42.5, Math.toRadians(180));
-        private final Pose pickup2CP1 = new Pose(44, 42.5, Math.toRadians(180));
+        private final Pose pickup2Pose = new Pose(0, 42.5, Math.toRadians(180));
+        private final Pose pickup2CP1 = new Pose(44, 40, Math.toRadians(180));
         private final Pose pickup2CP2 = new Pose(33, 42.5, Math.toRadians(180));
     //line 7 Push Bar ------------------------------------------------------------------------------
         private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(180));
@@ -93,7 +95,7 @@ import pedroPathing.constants.LConstants;
       //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
       //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-        private final Pose park = new Pose(22.5, 54, Math.toRadians(180));
+        private final Pose park = new Pose(42, 52, Math.toRadians(176));
     //  private PathChain ;-------------------------------------------------------------------------
         private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
 //--------------------------------------------------------------------------------------------------
@@ -130,21 +132,23 @@ import pedroPathing.constants.LConstants;
         public void autonomousPathUpdate() {
             switch (pathState) {
                 case 0:
+                    turret.setPower(0);
                     follower.followPath(scorePreload, true);
                     setPathState(1);
                     shotTimer.reset();
                     break; // --------------------------------------Shoots balls1--------------------------------------------
                 case 1:
                     ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                     if ((!follower.isBusy()) && ((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {//starts shooter
                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                             intake.setPower(1);
                     }
-                    if(shotTimer.milliseconds() > 2700) {
+                    if(shotTimer.milliseconds() > 2300) {
                         led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0.5);
                         }
-                    if(shotTimer.milliseconds() > 3700) {
+                    if(shotTimer.milliseconds() > 3500) {
                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                         BootKick.setPosition(0);
                         setPathState(2);
@@ -174,6 +178,7 @@ import pedroPathing.constants.LConstants;
                     ballrelease.setPosition(0.3);
                     intake.setPower(0);
                     flywheel.setPower(0);
+                    flywheel2.setPower(0);
                     setPathState(5);//starts shooter
                     shotTimer.reset();
 
@@ -183,12 +188,14 @@ import pedroPathing.constants.LConstants;
                     if (!follower.isBusy()) {
                         //starts shooter
                         ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                             ballrelease.setPosition(0.3);
                             intake.setPower(1);
                         }
                         if(slowDownTimer.milliseconds() > 2000 ){
                             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                            ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                         }
                     }
                     if(shotTimer.milliseconds() > 4000)  {
@@ -206,6 +213,7 @@ import pedroPathing.constants.LConstants;
                     follower.followPath(Pickup2, true);
                     intake.setPower(0);//turns shooter off
                     flywheel.setPower(0);
+                    flywheel2.setPower(0);
                     setPathState(7);
                     slowDownTimer.reset();
                     break; // -------------------------------------------------------------------------------------------
@@ -246,6 +254,7 @@ import pedroPathing.constants.LConstants;
                     if (!follower.isBusy()) {
                         //starts shooter
                         ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                             intake.setPower(1);
                         }
@@ -266,6 +275,7 @@ import pedroPathing.constants.LConstants;
                     intake.setPower(0);
                      //turns shooter off
                     flywheel.setPower(0);
+                    flywheel2.setPower(0);
                     setPathState(17);
                     slowDownTimer.reset();
                     break; // -------------------------------------------------------------------------------------------
@@ -290,6 +300,7 @@ import pedroPathing.constants.LConstants;
                     if (!follower.isBusy()) {
                         ballrelease.setPosition(0.3);
                         ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                         if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                             led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                             intake.setPower(1);
@@ -373,13 +384,18 @@ import pedroPathing.constants.LConstants;
             intake = hardwareMap.get(DcMotor.class, "intake");
             turret = hardwareMap.get(DcMotor.class, "turret");
             flywheel = hardwareMap.get(DcMotor.class, "flywheel");
+            flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
             ballrelease = hardwareMap.get(Servo.class,"ballrelease");
             BootKick = hardwareMap.get(Servo.class,"BootKick");
             led = hardwareMap.get(RevBlinkinLedDriver.class,"led");
            // shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             intake.setDirection(DcMotorSimple.Direction.FORWARD);
             flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
+            flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
+            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
         @Override

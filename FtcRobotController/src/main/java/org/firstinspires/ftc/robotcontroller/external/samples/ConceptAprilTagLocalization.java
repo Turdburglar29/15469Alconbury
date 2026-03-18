@@ -64,8 +64,9 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
 @Disabled
+@TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
+
 public class ConceptAprilTagLocalization extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -98,6 +99,11 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
             0, 0, 0, 0);
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0);
+    private Position aprilTagRedPosition = new Position(DistanceUnit.INCH,
+            0,0,0,0);
+    private Position aprilTagBluePosition = new Position(DistanceUnit.INCH,
+            0,0,0,0);
+    private static final int DESIRED_TAG_ID = 20;
 
     /**
      * The variable to store our instance of the AprilTag processor.
@@ -108,7 +114,6 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
      * The variable to store our instance of the vision portal.
      */
     private VisionPortal visionPortal;
-
     @Override
     public void runOpMode() {
 
@@ -128,14 +133,6 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
             telemetry.update();
 
             // Save CPU resources; can resume streaming when needed.
-            if (gamepad1.dpad_down) {
-                visionPortal.stopStreaming();
-            } else if (gamepad1.dpad_up) {
-                visionPortal.resumeStreaming();
-            }
-
-            // Share the CPU.
-            sleep(20);
         }
 
         // Save more CPU resources when camera is no longer needed.
@@ -157,7 +154,7 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
                 //.setDrawTagOutline(true)
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
 
                 // == CAMERA CALIBRATION ==
@@ -216,6 +213,10 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
      * Add telemetry about AprilTag detections.
      */
     private void telemetryAprilTag() {
+        int AprilTagDetection = 0;
+        if (AprilTagDetection == (DESIRED_TAG_ID)){
+            telemetry.addLine("WORKS");
+        }
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
