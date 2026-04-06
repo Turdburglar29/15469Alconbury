@@ -93,9 +93,9 @@ public class RedTeleop extends OpMode {
 
 
         // One-button calibration: manually aim at the real goal, then press OPTIONS once
-        if (gamepad1.options) {
-            turret.calibrateMountOffsetToCurrentAim();
-        }
+        //if (gamepad1.options) {
+         //   turret.calibrateMountOffsetToCurrentAim();
+        //}
 
         /* ---------------- SHOOTER & INTAKE ---------------- */
 
@@ -113,7 +113,7 @@ public class RedTeleop extends OpMode {
                 intake.setPower(-1);
             } else {
                 intake.setPower(0);
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
             }
             if (shotTimer.milliseconds() > 2500) {
                 BootKick.setPosition(0.5);
@@ -136,7 +136,7 @@ public class RedTeleop extends OpMode {
 
          */
 
-        } else if (gamepad1.triangle) {
+        /*} else if (gamepad1.triangle) {
             ballrelease.setPosition(0.27);
             ((DcMotorEx) flywheel).setVelocity(medVelocity);
             ((DcMotorEx) flywheel2).setVelocity(medVelocity);
@@ -149,6 +149,9 @@ public class RedTeleop extends OpMode {
             if (shotTimer.milliseconds() > 3000) {
                 BootKick.setPosition(0.5);
             }
+
+         */
+
 
         /*} else if (gamepad1.square) {
             ballrelease.setPosition(0.27);
@@ -168,18 +171,28 @@ public class RedTeleop extends OpMode {
             flywheel.setPower(0);
             flywheel2.setPower(0);
             intake.setPower(0);
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
 
-            if (gamepad1.dpad_right) { // intakes balls
-                intake.setPower(1);
-            } else {
-                intake.setPower(0);
-            }
+
+           // if (gamepad1.dpad_right) { // intakes balls
+          //      intake.setPower(1);
+         //   } else {
+         //       intake.setPower(0);
+
             if (gamepad1.square){
-                turret.setMountOffsetRad(Math.toRadians(-182));
+                turret.setMountOffsetRad(Math.toRadians(-188));
 
             }
-            if (gamepad1.square){
-                turret.setMountOffsetRad(Math.toRadians(-175));
+            if (gamepad1.cross){
+                turret.setMountOffsetRad(Math.toRadians(-170));
+
+            }
+            if (gamepad1.dpad_right){
+                turret.setMountOffsetRad(Math.toRadians(-193));
+
+            }
+            if (gamepad1.dpad_left){
+                turret.setMountOffsetRad(Math.toRadians(-163));
 
             }
 
@@ -192,10 +205,10 @@ public class RedTeleop extends OpMode {
             }
 
             if (gamepad1.dpad_left) {
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                 BootKick.setPosition(1);
             } else {
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                 BootKick.setPosition(0);
             }
         }

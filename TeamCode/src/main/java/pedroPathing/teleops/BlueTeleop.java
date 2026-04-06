@@ -31,7 +31,7 @@ public class BlueTeleop extends OpMode {
     private boolean lastCircle = false;
 
     private static final int IDLVelocity = -600;
-    private static final int bankVelocity = -800;
+    private static final int bankVelocity = -750;
     private static final int medVelocity = -1400;
     private static final int farVelocity = -2200;
     private static final int maxVelocity = -2000;
@@ -108,18 +108,18 @@ public class BlueTeleop extends OpMode {
             ballrelease.setPosition(0.3);
             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
             ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-            if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity - 10) {
+            if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 intake.setPower(-1);
             } else {
                 intake.setPower(0);
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
-            if (shotTimer.milliseconds() > 2500) {
+            if ((shotTimer.milliseconds() > 1000) && (((DcMotorEx) flywheel).getVelocity() >= bankVelocity)) {
                 BootKick.setPosition(0.5);
             }
 
-        } else if (gamepad1.cross) {
+        /*} else if (gamepad1.cross) {
             shotTimer.reset();
             ballrelease.setPosition(0);
             ((DcMotorEx) flywheel).setVelocity(medVelocity);
@@ -134,6 +134,8 @@ public class BlueTeleop extends OpMode {
                 BootKick.setPosition(0.5);
             }
 
+         */
+
         } else if (gamepad1.triangle) {
             ballrelease.setPosition(0.27);
             ((DcMotorEx) flywheel).setVelocity(farVelocity);
@@ -145,7 +147,7 @@ public class BlueTeleop extends OpMode {
                 intake.setPower(0);
             }
 
-        } else if (gamepad1.square) {
+        /*} else if (gamepad1.square) {
             ballrelease.setPosition(0.27);
             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
             ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
@@ -155,12 +157,15 @@ public class BlueTeleop extends OpMode {
                 intake.setPower(0);
             }
 
+         */
+
         } else {
             ((DcMotorEx) flywheel).setVelocity(IDLVelocity);
             ((DcMotorEx) flywheel2).setVelocity(IDLVelocity);
             flywheel.setPower(0);
             flywheel2.setPower(0);
             intake.setPower(0);
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
 
             if (gamepad1.dpad_right) { // intakes balls
                 intake.setPower(1);
@@ -182,6 +187,24 @@ public class BlueTeleop extends OpMode {
             } else {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 BootKick.setPosition(0);
+            }
+
+
+            if (gamepad1.square){
+                turret.setMountOffsetRad(Math.toRadians(-188));
+
+            }
+            if (gamepad1.cross){
+                turret.setMountOffsetRad(Math.toRadians(-170));
+
+            }
+            if (gamepad1.dpad_right){
+                turret.setMountOffsetRad(Math.toRadians(-193));
+
+            }
+            if (gamepad1.dpad_left){
+                turret.setMountOffsetRad(Math.toRadians(-163));
+
             }
         }
 

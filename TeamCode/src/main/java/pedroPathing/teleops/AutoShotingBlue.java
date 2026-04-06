@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
+
 @Disabled
 @TeleOp(name = "lastfunctionalBlue", group = "BlueTeleOp")
 public class AutoShotingBlue extends OpMode {
@@ -37,9 +38,12 @@ public class AutoShotingBlue extends OpMode {
     static final int TURRET_MIN_TICKS = - (int)(2 * Math.PI * Math.abs(TICKS_PER_RAD));
     static final int TURRET_MAX_TICKS = 0;
 
+    // PID gains
     static final double kP = 1.2;
+    static final double kI = 0.0;      // start at 0, increase slowly if you need to remove steady-state error
     static final double kD = 0.004;
     static final double kF = 0.06;
+
     static final double MAX_POWER = 0.75;
     static final double ANGLE_DEADBAND = Math.toRadians(1.0);
     static final double FILTER_ALPHA = 0.15;
@@ -60,14 +64,17 @@ public class AutoShotingBlue extends OpMode {
     private boolean turretLocked = false;
     private Object fakepose;
 
+    // PID state
+    private double integral = 0;
+    private double lastError = 0;
+    private double lastTime = 0;
+
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
         follower.setPose(new Pose(30, 75, Math.toRadians(0))); // set known start
-        // retrieve pose for init telemetry
-        //Pose OtherstartPose = follower.setStartingPose();
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -88,21 +95,9 @@ public class AutoShotingBlue extends OpMode {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        // Turret starting offset in radians
         int currentTicks = turret.getCurrentPosition();
         turretStartOffset = currentTicks / TICKS_PER_RAD;
 
-        // Compute required rotation to goal relative to starting pose
-        /*double dx = GOAL_X - OtherstartPose.getX();
-        double dy = GOAL_Y - OtherstartPose.getY();
-        double angleToGoal = Math.atan2(dy, dx) - OtherstartPose.getHeading();
-
-        double requiredTurn = wrapAngle(angleToGoal - turretStartOffset);
-
-        telemetry.addData("startPose",OtherstartPose);
-        telemetry.addData("Init Turret Angle (deg)", Math.toDegrees(turretStartOffset));
-        telemetry.addData("Required Turn to Goal (deg)", Math.toDegrees(requiredTurn));
-        telemetry.addData("Distance to Goal", Math.hypot(dx, dy));*/
         telemetry.update();
     }
 
@@ -110,7 +105,6 @@ public class AutoShotingBlue extends OpMode {
     public void start() {
         follower.startTeleopDrive();
 
-        // Compute absolute target for PID
         Pose startPose = follower.getPose();
         double dx = GOAL_X - startPose.getX();
         double dy = GOAL_Y - startPose.getY();
@@ -119,6 +113,10 @@ public class AutoShotingBlue extends OpMode {
         double currentTurretAngle = turret.getCurrentPosition() / TICKS_PER_RAD;
         filteredTargetAngle = wrapAngle(angleToGoal - currentTurretAngle);
         lastTurretAngle = currentTurretAngle;
+
+        lastTime = getRuntime();
+        integral = 0;
+        lastError = 0;
     }
 
     @Override
@@ -150,21 +148,52 @@ public class AutoShotingBlue extends OpMode {
                 FILTER_ALPHA * shortestDelta(filteredTargetAngle, targetAngle));
 
         double currentAngle = turret.getCurrentPosition() / TICKS_PER_RAD;
-        double error = shortestDelta(currentAngle, filteredTargetAngle);
-        double turretVelocity = currentAngle - lastTurretAngle;
-        lastTurretAngle = currentAngle;
 
+        // --- PID computation ---
+        double currentTime = getRuntime();
+        double dt = currentTime - lastTime;
+        if (dt <= 0) dt = 1e-3; // safety
+        lastTime = currentTime;
+
+        double error = shortestDelta(currentAngle, filteredTargetAngle);
+
+        // Soft limits
         int ticks = (int)(currentAngle * TICKS_PER_RAD);
         if (ticks <= TURRET_MIN_TICKS && error < 0) error = 0;
         if (ticks >= TURRET_MAX_TICKS && error > 0) error = 0;
 
-        double power = kP * error - kD * turretVelocity;
-        if (Math.abs(error) > ANGLE_DEADBAND) power += Math.signum(error) * kF;
+        // Integral with simple anti-windup
+        if (Math.abs(error) < Math.toRadians(20)) {
+            integral += error * dt;
+        } else {
+            integral = 0;
+        }
+
+        double derivative = (error - lastError) / dt;
+        lastError = error;
+
+        double power = kP * error + kI * integral + kD * derivative;
+
+        // Optional feedforward to overcome static friction
+        if (Math.abs(error) > ANGLE_DEADBAND) {
+            power += Math.signum(error) * kF;
+        }
+
+        // Voltage compensation
         power *= 12.5 / voltageSensor.getVoltage();
+
         power = Range.clip(power, -MAX_POWER, MAX_POWER);
-        if (Math.abs(error) < ANGLE_DEADBAND) power = 0;
+
+        // Deadband: stop and clear integral when close enough
+        if (Math.abs(error) < ANGLE_DEADBAND) {
+            power = 0;
+            integral = 0;
+        }
 
         turret.setPower(power);
+
+        double turretVelocity = currentAngle - lastTurretAngle;
+        lastTurretAngle = currentAngle;
 
         turretLocked = Math.abs(error) < ANGLE_DEADBAND && Math.abs(turretVelocity) < 0.02;
 

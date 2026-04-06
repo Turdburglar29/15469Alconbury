@@ -30,6 +30,7 @@ public class BlueTeleOp2 extends OpMode {
 
     private final ElapsedTime shotTimer = new ElapsedTime();
     private boolean lastCircle = false;
+    private boolean lastRightBumper = false;
 
     /*private static final int IDLVelocity = 500;
     private static final int bankVelocity = 1000;
@@ -47,6 +48,7 @@ public class BlueTeleOp2 extends OpMode {
     double P = 0;
     double F = 0;
     double[] stepSizes = {10.0,1.0,0.1,00.1,000.1};
+
     int stepIndex = 1;
 
     @Override
@@ -54,17 +56,17 @@ public class BlueTeleOp2 extends OpMode {
         Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(30, 75, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(57, 75, Math.toRadians(180)));
 
         /* === TURRET INIT === */
         turret = new TurretController(hardwareMap, "turret", follower);
         turret.setHeadingCcwPositive(false);
         turret.setTickSoftLimitsEnabled(true);
-        turret.setTickLimits(-365,340 );
-        turret.setSoftMarginTicks(3);
-        turret.setSlowZoneTicks(50);
+        turret.setTickLimits(-1650, 1050);
+        turret.setSoftMarginTicks(1);
+        turret.setSlowZoneTicks(15);
 
-        turret.setMountOffsetRad(Math.toRadians(-173));
+        turret.setMountOffsetRad(Math.toRadians(-177));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -73,8 +75,8 @@ public class BlueTeleOp2 extends OpMode {
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         PIDFCoefficients pidf = new PIDFCoefficients(P, 0, 0, F);
 
@@ -110,13 +112,13 @@ public class BlueTeleOp2 extends OpMode {
 
 
         // One-button calibration: manually aim at the real goal, then press OPTIONS once
-        if (gamepad1.rightBumperWasPressed()){
+        if (gamepad1.circleWasPressed()){
             if (curTargetVelocity == middlevelocity) {
                 curTargetVelocity = lowvelocity;
             }else{curTargetVelocity = middlevelocity; }
 
         }
-        if (gamepad1.bWasPressed()) {
+        /*if (gamepad1.bWasPressed()) {
             stepIndex =(stepIndex = 1) % stepSizes.length;
         }
         if (gamepad1.dpadLeftWasPressed()) {
@@ -131,12 +133,17 @@ public class BlueTeleOp2 extends OpMode {
         if (gamepad1.dpadDownWasPressed()) {
             P -= stepSizes[stepIndex];
         }
+
+         */
+
+
+
         PIDFCoefficients pidf = new PIDFCoefficients(P, 0, 0, F);
         flywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidf);
         flywheel.setVelocity(curTargetVelocity);
         flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidf);
         flywheel2.setVelocity(curTargetVelocity);
-        if (gamepad1.rightBumperWasPressed()){
+        /*if (gamepad1.rightBumperWasPressed()){
             shotTimer.reset();
             ballrelease.setPosition(0.3);
             stepIndex =(stepIndex = 10) % stepSizes.length;
@@ -144,7 +151,8 @@ public class BlueTeleOp2 extends OpMode {
             F -= stepSizes[stepIndex];
             if (shotTimer.milliseconds() > 1100){
                 intake.setPower(1);
-            }
+
+
 
         }
         if (gamepad1.rightBumperWasReleased()){
@@ -154,12 +162,25 @@ public class BlueTeleOp2 extends OpMode {
 
         }
 
+         */
+
+
+        if(gamepad1.triangleWasPressed()){
+            stepIndex =(stepIndex = 10) % stepSizes.length;
+            P -= stepSizes[stepIndex];
+            F -= stepSizes[stepIndex];
+            if(((flywheel.getVelocity() / flywheel2.getVelocity()) <= curTargetVelocity - 20) && (flywheel.getVelocity() / flywheel2.getVelocity()) >= curTargetVelocity - 20) {
+                intake.setPower(-1);
+            }
+        }
+
+
         double curVelocity = flywheel.getVelocity();
         double error2 = curTargetVelocity - curVelocity;
 
-        if (gamepad1.options) {
-            turret.calibrateMountOffsetToCurrentAim();
-        }
+        //if (gamepad1.options) {
+        //    turret.calibrateMountOffsetToCurrentAim();
+        //}
 
         /* ---------------- SHOOTER & INTAKE ---------------- */
         if (gamepad1.circle && !lastCircle) {
@@ -167,7 +188,7 @@ public class BlueTeleOp2 extends OpMode {
         }
         lastCircle = gamepad1.circle;
 
-        if (gamepad1.circle) {
+        if (gamepad1.cross) {
             /*ballrelease.setPosition(0.3);
             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
             if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 10) {
@@ -229,6 +250,8 @@ public class BlueTeleOp2 extends OpMode {
 
              */
 
+
+
             if (gamepad1.dpad_right) { // intakes balls
                 intake.setPower(1);
             } else {
@@ -241,6 +264,14 @@ public class BlueTeleOp2 extends OpMode {
                 BootKick.setPosition(0.8);
             } else {
                 intake.setPower(0);
+            }
+            while (gamepad1.right_bumper) { // outtakes balls
+                ballrelease.setPosition(0.3);
+                intake.setPower(-1);
+                intake.setPower(0);
+                if (shotTimer.milliseconds() > 1500) {
+                    BootKick.setPosition(0.5);
+                }
             }
 
             if (gamepad1.dpad_left) {

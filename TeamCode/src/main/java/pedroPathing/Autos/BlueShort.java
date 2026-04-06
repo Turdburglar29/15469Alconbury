@@ -25,7 +25,7 @@ import pedroPathing.constants.LConstants;
     public class BlueShort extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int IDLVelocity = 500;
-    private static final int bankVelocity = 750;
+    private static final int bankVelocity = 700;
     private static final int medVelocity = 750;
     private static final int farVelocity = 1000;
     private static final int maxVelocity = 2000;
