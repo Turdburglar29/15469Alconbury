@@ -172,6 +172,10 @@ public class AutoShotingRedFarZoneFar extends OpMode {
             if (gamepad1.dpad_left) BootKick.setPosition(1);
             else BootKick.setPosition(0);
 
+            //if (gamepad1.options) {
+              //  follower.setStartingPose(new Pose(0, 0, Math.toRadians(180)));
+            //}
+
             if (gamepad1.dpad_down)
                 turret.setMountOffsetRad(turret.getMountOffsetRad() + .03);
 
