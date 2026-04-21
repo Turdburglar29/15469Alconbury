@@ -16,7 +16,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretControllerRed;
 
-@TeleOp(name = "AutoShotignRed", group = "RedTeleOp")
+@TeleOp(name = "AutoShotingRedFar", group = "RedTeleOp")
 public class AutoShotingRedFar extends OpMode {
 
     private Follower follower;

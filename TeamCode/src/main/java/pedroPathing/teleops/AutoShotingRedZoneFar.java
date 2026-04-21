@@ -59,7 +59,7 @@ public class AutoShotingRedZoneFar extends OpMode {
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
 
-        turret.setMountOffsetRad(Math.toRadians(-172));
+        turret.setMountOffsetRad(Math.toRadians(-170));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");

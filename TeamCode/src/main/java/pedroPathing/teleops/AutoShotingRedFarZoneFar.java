@@ -16,7 +16,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretControllerRed;
 
-@TeleOp(name = "AutoShotignRedZoneFar", group = "RedTeleOp")
+@TeleOp(name = "AutoShotignRedFarZoneFar", group = "RedTeleOp")
 public class AutoShotingRedFarZoneFar extends OpMode {
 
     private Follower follower;
@@ -59,7 +59,7 @@ public class AutoShotingRedFarZoneFar extends OpMode {
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
 
-        turret.setMountOffsetRad(Math.toRadians(-172));
+        turret.setMountOffsetRad(Math.toRadians(-170));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
