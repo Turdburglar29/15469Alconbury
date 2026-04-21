@@ -25,7 +25,7 @@ import pedroPathing.constants.LConstants;
     public class RedShort extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int IDLVelocity = 500;
-    private static final int bankVelocity = 750;
+    private static final int bankVelocity = 700;
     private static final int medVelocity = 750;
     private static final int farVelocity = 1000;
     private static final int maxVelocity = 2000;
@@ -67,13 +67,13 @@ import pedroPathing.constants.LConstants;
     //Start point-----------------------------------------------------------------------------------
         private final Pose startPose = new Pose(20, 26, Math.toRadians(225));
     //line 1 ScorePreload 1 ------------------------------------------------------------------------
-        private final Pose scorePose = new Pose(32, 30, Math.toRadians(225));
+        private final Pose scorePose = new Pose(40, 38, Math.toRadians(225));
     //Line 3 Pickup 1-------------------------------------------------------------------------------
-        private final Pose pickup1Pose = new Pose(17, 60, Math.toRadians(180));
+        private final Pose pickup1Pose = new Pose(15, 62, Math.toRadians(180));
         private final Pose pickup1CP1 = new Pose(70, 63, Math.toRadians(180));
-        private final Pose pickup1CP2 = new Pose(70, 60, Math.toRadians(180));
+        private final Pose pickup1CP2 = new Pose(60, 62, Math.toRadians(180));
     //line 4 Score 1 -------------------------------------------------------------------------------
-        private final Pose score1Pose = new Pose(32, 30, Math.toRadians(225));
+        private final Pose score1Pose = new Pose(38, 36, Math.toRadians(225));
     //line 6 Pickup  2 -----------------------------------------------------------------------------
         private final Pose pickup2Pose = new Pose(15, 82, Math.toRadians(180));
         private final Pose pickup2CP1 = new Pose(70, 92, Math.toRadians(180));
@@ -82,7 +82,7 @@ import pedroPathing.constants.LConstants;
         private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(180));
         private final Pose pushBarCP1 = new Pose(25, 80, Math.toRadians(180));
     //line 8 Score  2 ------------------------------------------------------------------------------
-        private final Pose score2Pose = new Pose(32, 30, Math.toRadians(225));
+        private final Pose score2Pose = new Pose(38, 36, Math.toRadians(225));
         private final Pose score2CP1 = new Pose(35,75, Math.toRadians(180));
         private final Pose score2CP2 = new Pose(30, 40, Math.toRadians(190));
     //line 9 Pickup  3------------------------------------------------------------------------------
@@ -128,209 +128,207 @@ import pedroPathing.constants.LConstants;
             Park.setLinearHeadingInterpolation(score2Pose.getHeading(), park.getHeading());
 
         }
-        public void autonomousPathUpdate() {
-            switch (pathState) {
-                case 0:
-                    turret.setPower(0);
-                    follower.followPath(scorePreload, true);
-                    setPathState(1);
-                    shotTimer.reset();
-                    break; // --------------------------------------Shoots balls1--------------------------------------------
-                case 1:
+    public void autonomousPathUpdate() {
+        switch (pathState) {
+            case 0:
+                follower.setMaxPower(0.8);
+                turret.setPower(0);
+                follower.followPath(scorePreload, true);
+                setPathState(1);
+                shotTimer.reset();
+                break; // --------------------------------------Shoots balls1--------------------------------------------
+            case 1:
+                ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+                if ((!follower.isBusy()) && ((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {//starts shooter
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    intake.setPower(1);
+                }
+                if(shotTimer.milliseconds() > 2000) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.5);
+                }
+                if(shotTimer.milliseconds() > 3000) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0);
+                    setPathState(2);
+                }
+                break; // --------------------------------------Picks up 1st line ---------------------------------------
+            case 2:
+                follower.setMaxPower(0.95);
+                follower.followPath(Pickup1, true);
+                follower.setMaxPower(0.8);
+                ((DcMotorEx) flywheel).setVelocity(0);//turns shooter off
+                setPathState(3);
+                break; // -------------------------------------------------------------------------------------------
+            case 3:
+                ballrelease.setPosition(0.45);
+                follower.setMaxPower(0.8);
+                if(slowDownTimer.milliseconds() > 1000 ){
+                    follower.setMaxPower(0.8);
+                    intake.setPower(1);
+                }
+                intake.setPower(1); //turns intake on
+                if (!follower.isBusy()) {
+                    setPathState(4);
+                    follower.setMaxPower(0.8);
+                }
+                break; // -------------------------------------Moves to Score--------------------------------
+            case 4:
+                follower.setMaxPower(0.95);
+                follower.followPath(Score1, true);
+                ballrelease.setPosition(0.9);
+                intake.setPower(0);
+                flywheel.setPower(0);
+                flywheel2.setPower(0);
+                setPathState(5);//starts shooter
+                shotTimer.reset();
+
+
+                break; // --------------------------------Shots Balls2-------------------------------------------
+            case 5:
+                if (!follower.isBusy()) {
+                    //starts shooter
                     ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                     ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {//starts shooter
-                           led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                           intake.setPower(1);
+                    if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
+                        ballrelease.setPosition(0.9);
+                        intake.setPower(1);
                     }
-                    if(shotTimer.milliseconds() > 2700) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-                        BootKick.setPosition(0.5);
-                        }
-                    if(shotTimer.milliseconds() > 3700) {
-                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                        BootKick.setPosition(0);
-                        setPathState(2);
+                    if(slowDownTimer.milliseconds() > 2000 ){
+                        ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
                     }
-                    break; // --------------------------------------Picks up 1st line ---------------------------------------
-                case 2:
-                    follower.followPath(Pickup1, true);
-                    ((DcMotorEx) flywheel).setVelocity(0);
-                    ((DcMotorEx) flywheel2).setVelocity(0);//turns shooter off
-                    setPathState(3);
-                    break; // -------------------------------------------------------------------------------------------
-                case 3:
+                }
+                if(shotTimer.milliseconds() > 3800)  {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.5);
+                }
+                if(shotTimer.milliseconds() > 4700) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.0);
+                    setPathState(6);
+                }
+                slowDownTimer.reset();
+                break; // -----------------------------------Picks up 2nd Line----------------------------------------
+            case 6:
+                follower.followPath(Pickup2, true);
+                intake.setPower(0);//turns shooter off
+                flywheel.setPower(0);
+                flywheel2.setPower(0);
+                setPathState(7);
+                slowDownTimer.reset();
+                break; // -------------------------------------------------------------------------------------------
+            case 7:
+                if(slowDownTimer.milliseconds() > 1600) {
                     ballrelease.setPosition(0.45);
-                    follower.setMaxPower(0.6);
-                    if(slowDownTimer.milliseconds() > 1000 ){
-                        follower.setMaxPower(0.4);
+                    follower.setMaxPower(0.8);
+                    intake.setPower(1);
+                }
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
+                if (!follower.isBusy()) {
+                    setPathState(8);
+                    intake.setPower(0);
+                }
+                break; // ----------------------------------Hits Push Bar-----------------------------------
+            case 8:
+                follower.setMaxPower(0.8);
+                /* follower.followPath(PushBar, true);*/
+                setPathState(9);
+                break; // -------------------------------------------------------------------------------------------
+            case 9:
+
+                if (!follower.isBusy()) {
+                    intake.setPower(0);
+                    setPathState(10);
+                }
+                break; // --------------------------------Moves to Score--------------------------------------------
+            case 10:
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
+                intake.setPower(0);
+                follower.setMaxPower(0.95);
+                follower.followPath(Score2, true);
+                setPathState(11);
+                shotTimer.reset();
+                break; // --------------------------------Shots Balls3--------------------------------------------
+            case 11:
+                ballrelease.setPosition(0.9);
+                if (!follower.isBusy()) {
+                    //starts shooter
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+                    if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
                         intake.setPower(1);
                     }
-                    intake.setPower(1); //turns intake on
-                    if (!follower.isBusy()) {
-                        setPathState(4);
-                        follower.setMaxPower(0.4);
-                    }
-                    break; // -------------------------------------Moves to Score--------------------------------
-                case 4:
-                    follower.setMaxPower(0.95);
-                    follower.followPath(Score1, true);
-                    ballrelease.setPosition(0.3);
+                }
+                if(shotTimer.milliseconds() > 4900) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.5);
+                }
+                if(shotTimer.milliseconds() > 5600) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.0);
+                    setPathState(12);
+                }
+                slowDownTimer.reset();
+                break; // -------------------------------Picks up 3rd Line--------------------------------------------
+            case 12:
+                follower.followPath(Park, true);
+                intake.setPower(0);
+                //turns shooter off
+                flywheel.setPower(0);
+                flywheel2.setPower(0);
+                setPathState(17);
+                slowDownTimer.reset();
+                break; // -------------------------------------------------------------------------------------------
+            case 13:
+                if(slowDownTimer.milliseconds() > 2000) {
+                    follower.setMaxPower(.5);
+                    ballrelease.setPosition(0.45);
+                    intake.setPower(1);
+                }
+                if (!follower.isBusy()) {
                     intake.setPower(0);
-                    flywheel.setPower(0);
-                    flywheel2.setPower(0);
-                    setPathState(5);//starts shooter
-                    shotTimer.reset();
-
-
-                    break; // --------------------------------Shots Balls2-------------------------------------------
-                case 5:
-                    if (!follower.isBusy()) {
-                        //starts shooter
-                        ((DcMotorEx) flywheel).setVelocity(bankVelocity);
-                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                        if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
-                            ballrelease.setPosition(0.3);
-                            intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
-                        }
-                        if(slowDownTimer.milliseconds() > 2000 ){
-                            ((DcMotorEx) flywheel).setVelocity(bankVelocity);
-                            ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                        }
-
-                    }
-                    if(shotTimer.milliseconds() > 4100)  {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-                        BootKick.setPosition(0.5);
-                    }
-                    if(shotTimer.milliseconds() > 4900) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                        BootKick.setPosition(0.0);
-                        setPathState(6);
-                    }
-                    slowDownTimer.reset();
-                    break; // -----------------------------------Picks up 2nd Line----------------------------------------
-                case 6:
-                    follower.followPath(Pickup2, true);
-                    intake.setPower(0);//turns shooter off
-                    flywheel.setPower(0);
-                    flywheel2.setPower(0);
-                    setPathState(7);
-                    slowDownTimer.reset();
-                    break; // -------------------------------------------------------------------------------------------
-                case 7:
-                    if(slowDownTimer.milliseconds() > 1600) {
-                        ballrelease.setPosition(0.45);
-                        follower.setMaxPower(.4);
+                    setPathState(14);
+                }
+                break; // -------------------------------------------------------------------------------------------
+            case 14:
+                follower.setMaxPower(0.95);
+                follower.followPath(Score3, true);
+                setPathState(15);
+                shotTimer.reset();
+                break; // -------------------------------------------------------------------------------------------
+            case 15:
+                if (!follower.isBusy()) {
+                    ballrelease.setPosition(0.9);
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+                    if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                         intake.setPower(1);
-                    }
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
-                    if (!follower.isBusy()) {
-                        setPathState(8);
-                        intake.setPower(0);
-                    }
-                    break; // ----------------------------------Hits Push Bar-----------------------------------
-                case 8:
-                    follower.setMaxPower(0.95);
-                    /* follower.followPath(PushBar, true);*/
-                    setPathState(9);
-                    break; // -------------------------------------------------------------------------------------------
-                case 9:
 
-                    if (!follower.isBusy()) {
-                        intake.setPower(0);
-                        setPathState(10);
                     }
-                    break; // --------------------------------Moves to Score--------------------------------------------
-                case 10:
-                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
-                    intake.setPower(0);
-                    follower.setMaxPower(0.95);
-                    follower.followPath(Score2, true);
-                    setPathState(11);
-                    shotTimer.reset();
-                    break; // --------------------------------Shots Balls3--------------------------------------------
-                case 11:
-                    ballrelease.setPosition(0.3);
-                    if (!follower.isBusy()) {
-                        //starts shooter
-                        ((DcMotorEx) flywheel).setVelocity(bankVelocity);
-                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                        if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
-                            intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
-                        }
-                    }
-                    if(shotTimer.milliseconds() > 5200) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-                        BootKick.setPosition(0.5);
-                    }
-                    if(shotTimer.milliseconds() > 5700) {
-                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                        BootKick.setPosition(0.0);
-                        setPathState(12);
-                    }
-                    slowDownTimer.reset();
-                    break; // -------------------------------Picks up 3rd Line--------------------------------------------
-                case 12:
-                    follower.followPath(Park, true);
-                    intake.setPower(0);
-                     //turns shooter off
-                    flywheel2.setPower(0);
-                    flywheel.setPower(0);
-                    setPathState(17);
-                    slowDownTimer.reset();
-                    break; // -------------------------------------------------------------------------------------------
-                case 13:
-                    if(slowDownTimer.milliseconds() > 2000) {
-                        follower.setMaxPower(.5);
-                        ballrelease.setPosition(0.45);
-                        intake.setPower(1);
-                    }
-                    if (!follower.isBusy()) {
-                        intake.setPower(0);
-                        setPathState(14);
-                    }
-                    break; // -------------------------------------------------------------------------------------------
-                case 14:
-                    follower.setMaxPower(0.95);
-                    follower.followPath(Score3, true);
-                    setPathState(15);
-                    shotTimer.reset();
-                    break; // -------------------------------------------------------------------------------------------
-                case 15:
-                    if (!follower.isBusy()) {
-                        ballrelease.setPosition(0.3);
-                        ((DcMotorEx) flywheel).setVelocity(bankVelocity);
-                        ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                        if (((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 5) {
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                            intake.setPower(1);
-                            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN );
-
-                        }
-                    }
-                    if(shotTimer.milliseconds() > 2800) {
-                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-                        BootKick.setPosition(0.5);
-                    }
-                    if(shotTimer.milliseconds() > 4400) {
-                       led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                        BootKick.setPosition(0.0);
-                        setPathState(16);
-                    }
-                    break; // -------------------------------------------------------------------------------------------
-                case 16:
-                    follower.followPath(Park, true);
-                    setPathState(17);
-                    break; // -------------------------------------------------------------------------------------------
-                case 17:
-                    if (!follower.isBusy()) {
-                        stop();
-                    }
-            }
+                }
+                if(shotTimer.milliseconds() > 2800) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.5);
+                }
+                if(shotTimer.milliseconds() > 4400) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                    BootKick.setPosition(0.0);
+                    setPathState(16);
+                }
+                break; // -------------------------------------------------------------------------------------------
+            case 16:
+                follower.followPath(Park, true);
+                setPathState(17);
+                break; // -------------------------------------------------------------------------------------------
+            case 17:
+                if (!follower.isBusy()) {
+                    stop();
+                }
         }
+    }
         public void setPathState(int pState) {
             pathState = pState;
             pathTimer.resetTimer();

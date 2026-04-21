@@ -21,8 +21,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import pedroPathing.subsystems.TurretController;
 
-@Autonomous(name = "BlueLong", group = "Auto")
-public class BlueLong extends OpMode {
+@Autonomous(name = "RedLong", group = "Auto")
+public class RedLong extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int bankVelocity = 1225;
     private DcMotor intake;
@@ -82,28 +82,37 @@ public class BlueLong extends OpMode {
     private Timer pathTimer, opmodeTimer;
     private int pathState;
 
-    private final Pose startPose = new Pose(42, -4.19, Math.toRadians(90));
-    private final Pose scorePose = new Pose(50,3, Math.toRadians(114));
-    //private final Pose scorePose = new Pose(42, -4, Math.toRadians(112));
-
-    private final Pose pickup1Pose = new Pose(3, 17.3, Math.toRadians(180));
-    private final Pose pickup1CP1 = new Pose(45, 16.3, Math.toRadians(180));
-    private final Pose pickup1CP2 = new Pose(31, 16.3, Math.toRadians(180));
-
-    private final Pose score1Pose = new Pose(50, 3, Math.toRadians(114));
-
-    private final Pose pickup2Pose = new Pose(5, -6.25, Math.toRadians(200));
-    private final Pose pickup2CP1 = new Pose(30, -6.25, Math.toRadians(180));
-    private final Pose pickup2CP2 = new Pose(10., -6.25, Math.toRadians(180));
-
-    private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(180));
-    private final Pose pushBarCP1 = new Pose(25, 80, Math.toRadians(180));
-
-    private final Pose score2Pose = new Pose(50, 3, Math.toRadians(114));
-    private final Pose score2CP1 = new Pose(50,1, Math.toRadians(114));
-    private final Pose score2CP2 = new Pose(50, 2, Math.toRadians(114));
-
-    private final Pose park = new Pose(46.9, 10, Math.toRadians(180));
+    //Start point-----------------------------------------------------------------------------------
+    private final Pose startPose = new Pose(80, -6.19, Math.toRadians(90));
+    //line 1 ScorePreload 1 ------------------------------------------------------------------------
+    private final Pose scorePose = new Pose(75, 5, Math.toRadians(65));
+    //Line 3 Pickup 1-------------------------------------------------------------------------------
+    private final Pose pickup1Pose = new Pose(130, 22, Math.toRadians(0));
+    private final Pose pickup1CP1 = new Pose(90, 20, Math.toRadians(0));
+    private final Pose pickup1CP2 = new Pose(95, 20, Math.toRadians(0));
+    //line 4 Score 1 -------------------------------------------------------------------------------
+    private final Pose score1Pose = new Pose(75, 5, Math.toRadians(65));
+    //line 6 Pickup  2 -----------------------------------------------------------------------------
+    private final Pose pickup2Pose = new Pose(123, -2, Math.toRadians(-3));
+    private final Pose pickup2CP1 = new Pose(90, -2, Math.toRadians(0));
+    private final Pose pickup2CP2 = new Pose(95., -2, Math.toRadians(0));
+    //line 7 Push Bar ------------------------------------------------------------------------------
+    private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(0));
+    private final Pose pushBarCP1 = new Pose(25, 80, Math.toRadians(0));
+    //line 8 Score  2 ------------------------------------------------------------------------------
+    private final Pose score2Pose = new Pose(75, 5, Math.toRadians(65));
+    private final Pose score2CP1 = new Pose(80,2, Math.toRadians(-5));
+    private final Pose score2CP2 = new Pose(80, 2, Math.toRadians(50));
+    //line 9 Pickup  3------------------------------------------------------------------------------
+    //private final Pose pickup3Pose = new Pose(17, 115, Math.toRadians(180));
+    //private final Pose pickup3CP1 = new Pose(50, 90, Math.toRadians(180));
+    // private final Pose pickup3CP2 = new Pose(45, 110, Math.toRadians(180));
+    //line 10 Score 3-------------------------------------------------------------------------------
+    // private final Pose score3Pose = new Pose(32, 30, Math.toRadians(225));
+    //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
+    //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
+    //line 10 Park----------------------------------------------------------------------------------
+    private final Pose park = new Pose(80, 14.75, Math.toRadians(0));
     private Path scorePreload, Pickup1, Score1, Pickup2, PushBar, Score2, Pickup3, Score3, Park;
 
     // --- PIDController inner class (kept) ---
@@ -371,7 +380,7 @@ public class BlueLong extends OpMode {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 follower.setMaxPower(0.6);
                 follower.followPath(Score2, true);
-                if (slowDownTimer.milliseconds() > 2000) {
+                if (slowDownTimer.milliseconds() > 3000) {
                     intake.setPower(0);
                     setPathState(11);
                 }

@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretControllerRed;
-
+@Disabled
 @TeleOp(name = "RedTeleop", group = "RedTeleOp")
 public class RedTeleop extends OpMode {
 
@@ -30,7 +31,7 @@ public class RedTeleop extends OpMode {
     private final ElapsedTime shotTimer = new ElapsedTime();
     private boolean lastCircle = false;
 
-    private static final int IDLVelocity = -600;
+    private static final int IDLVelocity = -400;
     private static final int bankVelocity = -800;
     private static final int medVelocity = -1000;
     private static final int farVelocity = -2200;
@@ -84,8 +85,8 @@ public class RedTeleop extends OpMode {
     public void loop() {
         /* ---------------- DRIVE ---------------- */
         follower.setTeleOpMovementVectors(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
+                gamepad1.left_stick_y,
+                gamepad1.left_stick_x,
                 -gamepad1.right_stick_x,
                 false
         );
@@ -105,7 +106,7 @@ public class RedTeleop extends OpMode {
         lastCircle = gamepad1.circle;
 
         if (gamepad1.circle) {
-            ballrelease.setPosition(0.3);
+            ballrelease.setPosition(0.9);
             ((DcMotorEx) flywheel).setVelocity(bankVelocity);
             ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
             if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity - 10) {

@@ -14,10 +14,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
-import pedroPathing.subsystems.TurretController;
+import pedroPathing.subsystems.TurretControllerRed;
 
-@TeleOp(name = "AutoShotignBlue", group = "BlueTeleOp")
-public class AutoShotingBlue extends OpMode {
+@TeleOp(name = "AutoShotignRedZoneFar", group = "RedTeleOp")
+public class AutoShotingRedFarZoneFar extends OpMode {
 
     private Follower follower;
     private DcMotorEx flywheel;
@@ -34,11 +34,11 @@ public class AutoShotingBlue extends OpMode {
     private static final int bankVelocity = -575;
     private static final int farVelocity = -1240;
 
-    private TurretController turret;
+    private TurretControllerRed turret;
 
     // === PF constants ===
     private final double kF = 1.0 / 1525; //lower second number to increase speed up
-    private final double kP = 0.0017                                                                            ; //increase if throughput is slow
+    private final double kP = 0.0012; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
     private final double dNear = 20;
@@ -49,16 +49,17 @@ public class AutoShotingBlue extends OpMode {
         Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(57, 75, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(80, 14.75, Math.toRadians(0))); //red
 
         /* === TURRET INIT === */
-        turret = new TurretController(hardwareMap, "turret", follower);
+        turret = new TurretControllerRed(hardwareMap, "turret", follower);
         turret.setHeadingCcwPositive(false);
         turret.setTickSoftLimitsEnabled(true);
-        turret.setTickLimits(-1650, 1050);
+        turret.setTickLimits(-1650, 1050); // might change
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
-        turret.setMountOffsetRad(Math.toRadians(-177));
+
+        turret.setMountOffsetRad(Math.toRadians(-172));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -99,8 +100,8 @@ public class AutoShotingBlue extends OpMode {
 
         /* ---------------- DRIVE ---------------- */
         follower.setTeleOpMovementVectors(
-                gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
                 -gamepad1.right_stick_x,
                 false
         );
@@ -112,8 +113,8 @@ public class AutoShotingBlue extends OpMode {
 
         /* ---------------- DISTANCE‑BASED TARGET VELOCITY ---------------- */
         Pose p = follower.getPose();
-        double dx = TurretController.GOAL_X - p.getX();
-        double dy = TurretController.GOAL_Y - p.getY();
+        double dx = TurretControllerRed.GOAL_X - p.getX();
+        double dy = TurretControllerRed.GOAL_Y - p.getY();
         double distance = Math.hypot(dx, dy);
 
         double t = (distance - dNear) / (dFar - dNear);
@@ -139,7 +140,7 @@ public class AutoShotingBlue extends OpMode {
             flywheel.setPower(flyPower);
             flywheel2.setPower(flyPower);
 
-            if (Math.abs(measuredVel - targetVelocity) < 100) {
+            if (Math.abs(measuredVel - targetVelocity) < 60) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 intake.setPower(-1);
             } else {
@@ -147,8 +148,8 @@ public class AutoShotingBlue extends OpMode {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
 
-            if (shotTimer.milliseconds() > 1600 &&
-                    Math.abs(measuredVel - targetVelocity) < 100) {
+            if (shotTimer.milliseconds() > 3500 &&
+                    Math.abs(measuredVel - targetVelocity) < 60) {
                 BootKick.setPosition(0.6);
             }
 
@@ -182,12 +183,12 @@ public class AutoShotingBlue extends OpMode {
         if (turret != null) turret.update();
 
         /* ---------------- TELEMETRY ---------------- */
-        double fieldAngle = Math.atan2(TurretController.GOAL_Y - p.getY(),
-                TurretController.GOAL_X - p.getX());
-        double desiredRad = TurretController.wrapForTelemetry(
+        double fieldAngle = Math.atan2(TurretControllerRed.GOAL_Y - p.getY(),
+                TurretControllerRed.GOAL_X - p.getX());
+        double desiredRad = TurretControllerRed.wrapForTelemetry(
                 fieldAngle - (turret.getHeadingSign() * p.getHeading()) - turret.getMountOffsetRad()
         );
-        int desiredTicks = (int) Math.round(desiredRad * (TurretController.TURRET_TICKS_PER_REV / (2.0 * Math.PI)));
+        int desiredTicks = (int) Math.round(desiredRad * (TurretControllerRed.TURRET_TICKS_PER_REV / (2.0 * Math.PI)));
 
         int actualTicks = ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "turret")).getCurrentPosition();
 

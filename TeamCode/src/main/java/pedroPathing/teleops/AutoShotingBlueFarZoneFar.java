@@ -16,8 +16,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretController;
 
-@TeleOp(name = "AutoShotignBlue", group = "BlueTeleOp")
-public class AutoShotingBlue extends OpMode {
+@TeleOp(name = "AutoShotignBlueFarZoneFar", group = "BlueTeleOp")
+public class AutoShotingBlueFarZoneFar extends OpMode {
 
     private Follower follower;
     private DcMotorEx flywheel;
@@ -32,24 +32,26 @@ public class AutoShotingBlue extends OpMode {
 
     // Velocity endpoints for interpolation
     private static final int bankVelocity = -575;
-    private static final int farVelocity = -1240;
+    private static final int farVelocity = -1300;
 
     private TurretController turret;
 
     // === PF constants ===
-    private final double kF = 1.0 / 1525; //lower second number to increase speed up
-    private final double kP = 0.0017                                                                            ; //increase if throughput is slow
+    private final double kF = 1.0 / 900; //lower second number to increase speed up
+    private final double kP = 0.0015; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
     private final double dNear = 20;
     private final double dFar = 140;
+
+    private double BootTimer = 3500;
 
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(57, 75, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(46.9, 10, Math.toRadians(180)));
 
         /* === TURRET INIT === */
         turret = new TurretController(hardwareMap, "turret", follower);
@@ -58,7 +60,7 @@ public class AutoShotingBlue extends OpMode {
         turret.setTickLimits(-1650, 1050);
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
-        turret.setMountOffsetRad(Math.toRadians(-177));
+        turret.setMountOffsetRad(Math.toRadians(-172));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -139,7 +141,7 @@ public class AutoShotingBlue extends OpMode {
             flywheel.setPower(flyPower);
             flywheel2.setPower(flyPower);
 
-            if (Math.abs(measuredVel - targetVelocity) < 100) {
+            if (Math.abs(measuredVel - targetVelocity) < 60) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 intake.setPower(-1);
             } else {
@@ -147,8 +149,8 @@ public class AutoShotingBlue extends OpMode {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
 
-            if (shotTimer.milliseconds() > 1600 &&
-                    Math.abs(measuredVel - targetVelocity) < 100) {
+            if (shotTimer.milliseconds() > 3500 &&
+                    Math.abs(measuredVel - targetVelocity) < 60) {
                 BootKick.setPosition(0.6);
             }
 

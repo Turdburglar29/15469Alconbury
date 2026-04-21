@@ -17,9 +17,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretController;
 @Disabled
-
-@TeleOp(name = "BlueTeleop", group = "BlueTeleOp")
-public class BlueTeleop extends OpMode {
+@TeleOp(name = "BlueTeleopFarPID", group = "BlueTeleOp")
+public class BlueTeleopFarPID extends OpMode {
 
     private Follower follower;
     private DcMotor flywheel;
@@ -32,11 +31,12 @@ public class BlueTeleop extends OpMode {
     private final ElapsedTime shotTimer = new ElapsedTime();
     private boolean lastCircle = false;
 
-    private static final int IDLVelocity = -400;
-    private static final int bankVelocity = -650;
+    private static final int IDLVelocity = -200;
+    private static final int bankVelocity = -1170;
     private static final int medVelocity = -700;
     private static final int farVelocity = -1200;
     private static final int maxVelocity = -2000;
+
 
     private TurretController turret;
 
@@ -108,8 +108,8 @@ public class BlueTeleop extends OpMode {
 
         if (gamepad1.circle) {
             ballrelease.setPosition(0.9);
-            ((DcMotorEx) flywheel).setVelocity(medVelocity);
-            ((DcMotorEx) flywheel2).setVelocity(medVelocity);
+            ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+            ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
             if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 intake.setPower(-1);
@@ -117,7 +117,7 @@ public class BlueTeleop extends OpMode {
                 intake.setPower(0);
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
-            if ((shotTimer.milliseconds() > 1500) && ((DcMotorEx) flywheel).getVelocity() >= medVelocity - 20) {
+            if ((shotTimer.milliseconds() > 2800) && ((DcMotorEx) flywheel).getVelocity() >= bankVelocity - 20) {
                 BootKick.setPosition(0.6);
             }
 
@@ -190,7 +190,6 @@ public class BlueTeleop extends OpMode {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 BootKick.setPosition(0);
             }
-
 
             if (gamepad1.dpad_down){
                 turret.setMountOffsetRad((turret.getMountOffsetRad()+.03));
