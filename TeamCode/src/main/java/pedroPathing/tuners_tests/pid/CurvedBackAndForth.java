@@ -17,6 +17,7 @@ import com.pedropathing.pathgen.Point;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Disabled
 
 @Config
 @Autonomous (name = "Curved Back And Forth", group = "PIDF Testing")

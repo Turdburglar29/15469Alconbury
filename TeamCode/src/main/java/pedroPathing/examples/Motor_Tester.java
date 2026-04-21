@@ -1,6 +1,7 @@
 package pedroPathing.examples;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 
+@Disabled
 
 @TeleOp(name = "Motor_Tester", group = "Examples")
 public class Motor_Tester extends OpMode {

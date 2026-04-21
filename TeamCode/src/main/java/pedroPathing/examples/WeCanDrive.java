@@ -3,12 +3,14 @@ package pedroPathing.examples;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+@Disabled
 
 @TeleOp(name = "WeCanDrive", group = "teleops")
 public class WeCanDrive extends OpMode {

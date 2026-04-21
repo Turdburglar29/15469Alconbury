@@ -59,6 +59,7 @@ For support, contact tech@gobilda.com
 -Ethan Doak
  */
 
+@Disabled
 
 @TeleOp(name="goBILDA® PinPoint Odometry Example", group="Teleop Test")
 

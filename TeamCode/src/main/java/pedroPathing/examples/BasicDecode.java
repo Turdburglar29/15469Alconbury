@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-
+@Disabled
 @TeleOp(name = "BasicDecode", group = "Examples")
 public class BasicDecode extends OpMode {
     private Follower follower;

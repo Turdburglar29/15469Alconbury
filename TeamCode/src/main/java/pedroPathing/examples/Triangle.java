@@ -25,6 +25,8 @@ import pedroPathing.constants.LConstants30630;
  * @author Samarth Mahapatra - 1002 CircuitRunners Robotics Surge
  * @version 1.0, 12/30/2024
  */
+@Disabled
+
 @Autonomous(name = "Triangle", group = "Examples")
 public class Triangle extends OpMode {
     private Follower follower;

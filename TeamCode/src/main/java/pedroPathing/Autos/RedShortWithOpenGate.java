@@ -10,6 +10,7 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,6 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+@Disabled
 
 @Autonomous(name = "RedShortWithOpenGate", group = "Auto")
 
