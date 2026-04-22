@@ -4,7 +4,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,8 +15,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretControllerRed;
-@TeleOp(name = "RedTeleop", group = "RedTeleOp")
-public class RedTeleop extends OpMode {
+
+@TeleOp(name = "RedTeleopLong", group = "RedTeleOp")
+public class RedTeleopLong extends OpMode {
 
     private Follower follower;
     private DcMotor flywheel;
@@ -44,7 +44,7 @@ public class RedTeleop extends OpMode {
 
         follower = new Follower(hardwareMap);
         //follower.setStartingPose(new Pose(30, 75, Math.toRadians(180))); //blue
-        follower.setStartingPose(new Pose(90, 75, Math.toRadians(0))); //red
+        follower.setStartingPose(new Pose(80, 14.75, Math.toRadians(0))); //red
 
         /* === TURRET INIT === */
         turret = new TurretControllerRed(hardwareMap, "turret", follower);

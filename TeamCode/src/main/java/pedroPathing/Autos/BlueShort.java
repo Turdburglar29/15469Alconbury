@@ -95,7 +95,7 @@ import pedroPathing.constants.LConstants;
       //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
       //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-        private final Pose park = new Pose(42, 52, Math.toRadians(176));
+        private final Pose park = new Pose(42, 55, Math.toRadians(176));
     //  private PathChain ;-------------------------------------------------------------------------
         private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
 //--------------------------------------------------------------------------------------------------

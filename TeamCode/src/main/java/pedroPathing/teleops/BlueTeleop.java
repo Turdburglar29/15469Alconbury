@@ -16,7 +16,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretController;
-@Disabled
 
 @TeleOp(name = "BlueTeleop", group = "BlueTeleOp")
 public class BlueTeleop extends OpMode {
@@ -138,7 +137,7 @@ public class BlueTeleop extends OpMode {
 
          */
 
-        } else if (gamepad1.triangle) {
+        /*} else if (gamepad1.triangle) {
             ballrelease.setPosition(0.27);
             ((DcMotorEx) flywheel).setVelocity(farVelocity);
             ((DcMotorEx) flywheel2).setVelocity(farVelocity);
@@ -148,6 +147,8 @@ public class BlueTeleop extends OpMode {
             } else {
                 intake.setPower(0);
             }
+
+         */
 
         /*} else if (gamepad1.square) {
             ballrelease.setPosition(0.27);
