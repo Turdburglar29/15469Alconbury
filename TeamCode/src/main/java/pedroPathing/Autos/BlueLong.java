@@ -83,14 +83,14 @@ public class BlueLong extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(42, -4.19, Math.toRadians(90));
-    private final Pose scorePose = new Pose(50,3, Math.toRadians(114));
+    private final Pose scorePose = new Pose(48,5, Math.toRadians(114));
     //private final Pose scorePose = new Pose(42, -4, Math.toRadians(112));
 
     private final Pose pickup1Pose = new Pose(3, 17.3, Math.toRadians(180));
     private final Pose pickup1CP1 = new Pose(45, 16.3, Math.toRadians(180));
     private final Pose pickup1CP2 = new Pose(31, 16.3, Math.toRadians(180));
 
-    private final Pose score1Pose = new Pose(50, 3, Math.toRadians(114));
+    private final Pose score1Pose = new Pose(48, 5, Math.toRadians(114));
 
     private final Pose pickup2Pose = new Pose(5, -6.25, Math.toRadians(200));
     private final Pose pickup2CP1 = new Pose(30, -6.25, Math.toRadians(180));
@@ -99,9 +99,9 @@ public class BlueLong extends OpMode {
     private final Pose pushBarPose = new Pose(16.5, 80, Math.toRadians(180));
     private final Pose pushBarCP1 = new Pose(25, 80, Math.toRadians(180));
 
-    private final Pose score2Pose = new Pose(50, 3, Math.toRadians(114));
+    private final Pose score2Pose = new Pose(48, 5, Math.toRadians(114));
     private final Pose score2CP1 = new Pose(50,1, Math.toRadians(114));
-    private final Pose score2CP2 = new Pose(50, 2, Math.toRadians(114));
+    private final Pose score2CP2 = new Pose(50, 3 , Math.toRadians(114));
 
     private final Pose park = new Pose(46.9, 10, Math.toRadians(180));
     private Path scorePreload, Pickup1, Score1, Pickup2, PushBar, Score2, Pickup3, Score3, Park;

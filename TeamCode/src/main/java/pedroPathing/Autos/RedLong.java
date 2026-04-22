@@ -66,7 +66,7 @@ public class RedLong extends OpMode {
     private final long kickDurationMs = 1500;
     private boolean kickInProgress = false;
     private ElapsedTime kickTimer = new ElapsedTime();
-    private final long safetyTimeoutMs = 7000;
+    private final long safetyTimeoutMs = 6000;
 
     private enum ShootState { WAIT_FOR_READY, FEED_INTAKE, PAUSE_AFTER_FEED, BOOTKICK, DONE }
     private ShootState shootState = ShootState.WAIT_FOR_READY;
@@ -324,7 +324,7 @@ public class RedLong extends OpMode {
                 setPathState(3);
                 break;
             case 3:
-                ballrelease.setPosition(0.46);
+                ballrelease.setPosition(0.6);
                 follower.setMaxPower(0.8);
                 if(slowDownTimer.milliseconds() > 1200 ){
                     follower.setMaxPower(0.6);

@@ -37,8 +37,8 @@ public class AutoShotingBlue extends OpMode {
     private TurretController turret;
 
     // === PF constants ===
-    private final double kF = 1.0 / 1525; //lower second number to increase speed up
-    private final double kP = 0.0017                                                                            ; //increase if throughput is slow
+    private final double kF = 1.0 / 1900; //lower second number to increase speed up
+    private final double kP = 0.0012                                                                            ; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
     private final double dNear = 20;
@@ -147,7 +147,7 @@ public class AutoShotingBlue extends OpMode {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
 
-            if (shotTimer.milliseconds() > 1600 &&
+            if (shotTimer.milliseconds() > 1200 &&
                     Math.abs(measuredVel - targetVelocity) < 100) {
                 BootKick.setPosition(0.6);
             }

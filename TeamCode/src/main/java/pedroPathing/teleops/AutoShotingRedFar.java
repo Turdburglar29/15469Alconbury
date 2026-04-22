@@ -37,7 +37,7 @@ public class AutoShotingRedFar extends OpMode {
     private TurretControllerRed turret;
 
     // === PF constants ===
-    private final double kF = 1.0 / 1525; //lower second number to increase speed up
+    private final double kF = 1.0 / 1900; //lower second number to increase speed up
     private final double kP = 0.0012; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
@@ -59,7 +59,7 @@ public class AutoShotingRedFar extends OpMode {
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
 
-        turret.setMountOffsetRad(Math.toRadians(-177));
+        turret.setMountOffsetRad(Math.toRadians(-162));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");

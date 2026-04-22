@@ -37,8 +37,8 @@ public class AutoShotingBlueFar extends OpMode {
     private TurretController turret;
 
     // === PF constants ===
-    private final double kF = 1.0 / 900; //lower second number to increase speed up
-    private final double kP = 0.0015; //increase if throughput is slow
+    private final double kF = 1.0 / 1900; //lower second number to increase speed up
+    private final double kP = 0.0012; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
     private final double dNear = 20;
