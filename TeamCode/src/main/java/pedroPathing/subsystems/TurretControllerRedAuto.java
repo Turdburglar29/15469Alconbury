@@ -12,10 +12,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  * TurretController with tick-based soft limits and a hold-at-target feature.
  * Use setHoldAtZeroEnabled(true) and setHoldTargetTick(...) to lock turret.
  */
-public class TurretController {
+public class TurretControllerRedAuto {
 
-    public static final double GOAL_X = 12.5;
-    public static final double GOAL_Y = 137.5;
+    public static final double GOAL_X = 120;
+    public static final double GOAL_Y = 115;
 
     public static final double TURRET_TICKS_PER_REV = 726;
     public static final double TURRET_TICKS_PER_RAD = TURRET_TICKS_PER_REV / (2.0 * Math.PI);
@@ -57,7 +57,7 @@ public class TurretController {
     private double hold_kD = 0.01;
     private double hold_kS = 0.12;
 
-    public TurretController(HardwareMap hw, String turretMotorName, Follower follower) {
+    public TurretControllerRedAuto(HardwareMap hw, String turretMotorName, Follower follower) {
         this.turretMotor = hw.get(DcMotorEx.class, turretMotorName);
         this.follower = follower;
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

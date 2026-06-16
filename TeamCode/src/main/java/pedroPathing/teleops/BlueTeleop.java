@@ -1,17 +1,23 @@
 package pedroPathing.teleops;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.*;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
@@ -26,16 +32,19 @@ public class BlueTeleop extends OpMode {
     private DcMotor intake;
     private Servo ballrelease;
     private Servo BootKick;
+    private Servo hood;
+    private RevColorSensorV3 sensorRight;
     private RevBlinkinLedDriver led;
 
     private final ElapsedTime shotTimer = new ElapsedTime();
     private boolean lastCircle = false;
 
-    private static final int IDLVelocity = -400;
-    private static final int bankVelocity = -650;
-    private static final int medVelocity = -700;
-    private static final int farVelocity = -1200;
+    private static final int IDLVelocity = 1100;
+    private static final int bankVelocity = 1100;
+    private static final int medVelocity = 1000;
+    private static final int farVelocity = 2000;
     private static final int maxVelocity = -2000;
+    private static final int DistanceColor = 2;
 
     private TurretController turret;
 
@@ -51,7 +60,7 @@ public class BlueTeleop extends OpMode {
         turret = new TurretController(hardwareMap, "turret", follower);
         turret.setHeadingCcwPositive(false);
         turret.setTickSoftLimitsEnabled(true);
-        turret.setTickLimits(-1650, 1050);
+        turret.setTickLimits(-1250, 1350);
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
 
@@ -60,15 +69,17 @@ public class BlueTeleop extends OpMode {
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel.setDirection(DcMotorSimple.Direction.FORWARD);
+    flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        sensorRight = hardwareMap.get(RevColorSensorV3.class,"sensorRight");
 
         ballrelease = hardwareMap.get(Servo.class, "ballrelease");
+        hood = hardwareMap.get(Servo.class,"hood");
         BootKick = hardwareMap.get(Servo.class, "BootKick");
         led = hardwareMap.get(RevBlinkinLedDriver.class, "led");
 
@@ -100,42 +111,49 @@ public class BlueTeleop extends OpMode {
 
         /* ---------------- SHOOTER & INTAKE ---------------- */
 
+
         if (gamepad1.circle && !lastCircle) {
             shotTimer.reset();
         }
         lastCircle = gamepad1.circle;
 
         if (gamepad1.circle) {
-            ballrelease.setPosition(0.9);
-            ((DcMotorEx) flywheel).setVelocity(medVelocity);
-            ((DcMotorEx) flywheel2).setVelocity(medVelocity);
-            if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity) {
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                intake.setPower(-1);
+            ballrelease.setPosition(0.5);
+            hood.setPosition(0.65);
+            ((DcMotorEx) flywheel).setVelocity(farVelocity);
+            ((DcMotorEx) flywheel2).setVelocity(farVelocity);
+            if (((DcMotorEx) flywheel).getVelocity() <= farVelocity - 5) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
             } else {
-                intake.setPower(0);
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SHOT_WHITE);
             }
-            if ((shotTimer.milliseconds() > 1500) && ((DcMotorEx) flywheel).getVelocity() >= medVelocity - 20) {
-                BootKick.setPosition(0.6);
+            if (shotTimer.milliseconds() > 500) {
+                intake.setPower(-0.8);
+                led.setPattern((RevBlinkinLedDriver.BlinkinPattern.HOT_PINK));
+            }
+            if (shotTimer.milliseconds() > 503) {
+                intake.setPower(-0.8);
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
             }
 
-        /*} else if (gamepad1.cross) {
+
+
+
+        } else if (gamepad1.cross) {
             shotTimer.reset();
-            ballrelease.setPosition(0);
-            ((DcMotorEx) flywheel).setVelocity(medVelocity);
-            ((DcMotorEx) flywheel2).setVelocity(medVelocity);
-            if (((DcMotorEx) flywheel).getVelocity() <= medVelocity - 5) {
+            ballrelease.setPosition(0.5);
+            hood.setPosition(0.66);
+            ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+            ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+            if (((DcMotorEx) flywheel).getVelocity() <= bankVelocity - 5) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 intake.setPower(-1);
             } else {
                 intake.setPower(0);
             }
-            if (shotTimer.milliseconds() > 3000) {
-                BootKick.setPosition(0.5);
-            }
 
-         */
+
+
 
         /*} else if (gamepad1.triangle) {
             ballrelease.setPosition(0.27);
@@ -168,20 +186,24 @@ public class BlueTeleop extends OpMode {
             flywheel.setPower(0);
             flywheel2.setPower(0);
             intake.setPower(0);
-            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+            hood.setPosition(0.46);
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
 
-            if (gamepad1.dpad_right) { // intakes balls
-                intake.setPower(1);
-            } else {
-                intake.setPower(0);
+            if (gamepad1.right_bumper) { // intakes balls
+                ballrelease.setPosition(0.55);
             }
 
             if (gamepad1.left_bumper) { // outtakes balls
-                ballrelease.setPosition(0.46);
+                ballrelease.setPosition(0.9);
                 intake.setPower(-1);
                 BootKick.setPosition(0.8);
+                hood.setPosition(0.9);
             } else {
                 intake.setPower(0);
+            }
+            if (gamepad1.options) {
+                ((DcMotorEx) flywheel2).setVelocity(farVelocity);
+                ((DcMotorEx) flywheel).setVelocity(farVelocity);
             }
 
             if (gamepad1.dpad_left) {
@@ -190,6 +212,10 @@ public class BlueTeleop extends OpMode {
             } else {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 BootKick.setPosition(0);
+            }
+            if (sensorRight.getDistance(CM) <= DistanceColor) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                telemetry.addLine("BallDetected");
             }
 
 
@@ -224,6 +250,7 @@ public class BlueTeleop extends OpMode {
         int actualTicks = ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "turret")).getCurrentPosition();
 
         telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel).getVelocity());
+        telemetry.addData("Distance Detected Right Sensor", ((RevColorSensorV3) sensorRight).getDistance(CM));
         telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel2).getVelocity());
         telemetry.addData("MountOffset(deg)", Math.toDegrees(turret.getMountOffsetRad()));
         telemetry.addData("DesiredTicks", desiredTicks);

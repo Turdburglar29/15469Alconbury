@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstantsTeleop;
 import pedroPathing.subsystems.TurretControllerRed;
-@Disabled
-@TeleOp(name = "AutoShotignRed", group = "RedTeleOp")
+
+@TeleOp(name = "AutoShotignRed", group = "BlueTeleOp")
 public class AutoShotingRed extends OpMode {
 
     private Follower follower;
@@ -26,20 +26,21 @@ public class AutoShotingRed extends OpMode {
     private DcMotor intake;
     private Servo ballrelease;
     private Servo BootKick;
+    private Servo hood;
     private RevBlinkinLedDriver led;
 
     private final ElapsedTime shotTimer = new ElapsedTime();
     private boolean lastCircle = false;
 
     // Velocity endpoints for interpolation
-    private static final int bankVelocity = -575;
-    private static final int farVelocity = -1240;
+    private static final int bankVelocity = 700;
+    private static final int farVelocity = 1800;
 
     private TurretControllerRed turret;
 
     // === PF constants ===
-    private final double kF = 1.0 / 1900; //lower second number to increase speed up
-    private final double kP = 0.0012; //increase if throughput is slow
+    private final double kF = 1.0 / 1200; //lower second number to increase speed up
+    private final double kP = 0.0012                                                                            ; //increase if throughput is slow
 
     // === Distance thresholds (inches) ===
     private final double dNear = 20;
@@ -50,26 +51,25 @@ public class AutoShotingRed extends OpMode {
         Constants.setConstants(FConstants.class, LConstantsTeleop.class);
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(90, 75, Math.toRadians(0))); //red
+        follower.setStartingPose(new Pose(90, 75, Math.toRadians(180)));
 
         /* === TURRET INIT === */
         turret = new TurretControllerRed(hardwareMap, "turret", follower);
         turret.setHeadingCcwPositive(false);
         turret.setTickSoftLimitsEnabled(true);
-        turret.setTickLimits(-1650, 1050); // might change
+        turret.setTickLimits(-1650, 1050);
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
-
-        turret.setMountOffsetRad(Math.toRadians(-162));
+        turret.setMountOffsetRad(Math.toRadians(177));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -77,6 +77,7 @@ public class AutoShotingRed extends OpMode {
         ballrelease = hardwareMap.get(Servo.class, "ballrelease");
         BootKick = hardwareMap.get(Servo.class, "BootKick");
         led = hardwareMap.get(RevBlinkinLedDriver.class, "led");
+        hood = hardwareMap.get(Servo.class,"hood");
 
         telemetry.addLine("Init OK");
         telemetry.update();
@@ -101,8 +102,8 @@ public class AutoShotingRed extends OpMode {
 
         /* ---------------- DRIVE ---------------- */
         follower.setTeleOpMovementVectors(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
+                gamepad1.left_stick_y,
+                gamepad1.left_stick_x,
                 -gamepad1.right_stick_x,
                 false
         );
@@ -136,38 +137,36 @@ public class AutoShotingRed extends OpMode {
         if (gamepad1.circle) {
 
             // === SHOOT FROM ANYWHERE ===
-            ballrelease.setPosition(0.9);
+            ballrelease.setPosition(0.5);
+            hood.setPosition(0.65);
 
             flywheel.setPower(flyPower);
             flywheel2.setPower(flyPower);
 
-            if (Math.abs(measuredVel - targetVelocity) < 100) {
+            if (Math.abs(measuredVel - targetVelocity) > 1) {
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                intake.setPower(-1);
             } else {
-                intake.setPower(0);
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
             }
 
-            if (shotTimer.milliseconds() > 1200 &&
-                    Math.abs(measuredVel - targetVelocity) < 100) {
-                BootKick.setPosition(0.6);
+            if (shotTimer.milliseconds() > 700) {
+                intake.setPower(-0.8);
             }
 
         } else {
 
             // === IDLE ===
-            flywheel.setPower(0);
-            flywheel2.setPower(0);
+            flywheel.setVelocity(800);
+            flywheel2.setVelocity(800);
             intake.setPower(0);
             led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
 
             if (gamepad1.dpad_right) intake.setPower(1);
 
             if (gamepad1.left_bumper) {
-                ballrelease.setPosition(0.46);
+                ballrelease.setPosition(0.9);
                 intake.setPower(-1);
-                BootKick.setPosition(0.8);
+                BootKick.setPosition(0.7);
             }
 
             if (gamepad1.dpad_left) BootKick.setPosition(1);
