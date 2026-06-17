@@ -67,28 +67,28 @@ public class RedShort extends OpMode {
     //line 1 ScorePreload 1 ------------------------------------------------------------------------
         private final Pose scorePose = new Pose(80, 80, Math.toRadians(340));
     //Line 3 Pickup 1-------------------------------------------------------------------------------
-    private final Pose pickup1Pose = new Pose(115, 80, Math.toRadians(360));
-    private final Pose pickup1CP1 = new Pose(110, 58, Math.toRadians(360));
-    private final Pose pickup1CP2 = new Pose(105, 68.5, Math.toRadians(360));
+    private final Pose pickup1Pose = new Pose(104, 70, Math.toRadians(360));
+    private final Pose pickup1CP1 = new Pose(85, 68, Math.toRadians(360));
+    private final Pose pickup1CP2 = new Pose(90, 73, Math.toRadians(360));
     //line 4 Score 1 -------------------------------------------------------------------------------
     private final Pose score1Pose = new Pose(50, 70, Math.toRadians(135));
     //line 6 Pickup  2 -----------------------------------------------------------------------------
-    private final Pose pickup2Pose = new Pose(100, 39, Math.toRadians(360));
-    private final Pose pickup2CP1 = new Pose(95, 35, Math.toRadians(360));
-    private final Pose pickup2CP2 = new Pose(89, 37.5, Math.toRadians(360));
+    private final Pose pickup2Pose = new Pose(100, 44, Math.toRadians(360));
+    private final Pose pickup2CP1 = new Pose(95, 39, Math.toRadians(360));
+    private final Pose pickup2CP2 = new Pose(89, 42.5, Math.toRadians(360));
     //line 7 Push Bar ------------------------------------------------------------------------------
-    private final Pose pushBarPose = new Pose(103, 60, Math.toRadians(360));
-    private final Pose pushBarCP1 = new Pose(80, 39, Math.toRadians(360));
-    private final Pose pushBarCP2 = new Pose(80, 45, Math.toRadians(360));
-    private final Pose pushBarCP3 = new Pose(82, 45, Math.toRadians(360));
+    private final Pose pushBarPose = new Pose(104, 58, Math.toRadians(360));
+    private final Pose pushBarCP1 = new Pose(70, 50, Math.toRadians(360));
+    private final Pose pushBarCP2 = new Pose(75, 50, Math.toRadians(360));
+    private final Pose pushBarCP3 = new Pose(80, 50, Math.toRadians(360));
     //line 8 Score  2 ------------------------------------------------------------------------------
     private final Pose score2Pose = new Pose(80, 80, Math.toRadians(340));
     private final Pose score2CP1 = new Pose(90,45, Math.toRadians(200));
-    private final Pose score2CP2 = new Pose(100, 65, Math.toRadians(200));
+    private final Pose score2CP2 = new Pose(85, 50, Math.toRadians(200));
     //line 9 Pickup  3------------------------------------------------------------------------------
-    private final Pose pickup3Pose = new Pose(110, 40.5, Math.toRadians(360));
-    private final Pose pickup3CP1 = new Pose(80, 35, Math.toRadians(360));
-    private final Pose pickup3CP2 = new Pose(90, 37.5, Math.toRadians(360));
+    private final Pose pickup3Pose = new Pose(108, 50.5, Math.toRadians(360));
+    private final Pose pickup3CP1 = new Pose(77, 45, Math.toRadians(360));
+    private final Pose pickup3CP2 = new Pose(87, 47.5, Math.toRadians(360));
     //line 10 Score 3-------------------------------------------------------------------------------
     // private final Pose score3Pose = new Pose(32, 30, Math.toRadians(225));
     //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
@@ -112,7 +112,7 @@ public class RedShort extends OpMode {
         Pickup2 = new Path(new BezierCurve(new Point(score2Pose), new Point(pickup1CP1), new Point(pickup1CP2), new Point(pickup1Pose)));
         Pickup2.setLinearHeadingInterpolation(score2Pose.getHeading(), pickup1Pose.getHeading());
 //line 5 ----------------------------------------------------------------------------------------------------------------------------------
-        PushBar = new Path(new BezierCurve(new Point(pickup3Pose), new Point(pushBarCP1), new Point(pushBarCP2), new Point(pushBarCP3), new Point(pushBarPose)));
+        PushBar = new Path(new BezierCurve(new Point(pickup3Pose), new Point(pushBarCP2), new Point(pushBarCP3), new Point(pushBarPose)));
         PushBar.setLinearHeadingInterpolation(pickup3Pose.getHeading(), pushBarPose.getHeading());
 //line 6 ----------------------------------------------------------------------------------------------------------------------------------
         Score2 = new Path(new BezierCurve(new Point(pickup1Pose), new Point(score2CP1), new Point(score2CP2), new Point(score2Pose)));
@@ -174,7 +174,7 @@ public class RedShort extends OpMode {
                 break; // -------------------------------------Moves to Score--------------------------------
             case 4:
                 follower.followPath(PushBar, true);
-                follower.setMaxPower(1);
+                follower.setMaxPower(0.5);
                 setPathState(44);
                 shotTimer.reset();
                 break;
@@ -266,7 +266,7 @@ public class RedShort extends OpMode {
                 }
                 slowDownTimer.reset();
                 break; // -------------------------------Picks up 3rd Line--------------------------------------------
-            case 13:
+            /*case 13:
                 follower.followPath(Pickup3, true);
                 intake.setPower(1);
                 //turns shooter off
@@ -309,7 +309,7 @@ public class RedShort extends OpMode {
             case 17:
                 follower.followPath(Park, true);
                 setPathState(18);
-                break; // -------------------------------------------------------------------------------------------
+                break; ?*/// -------------------------------------------------------------------------------------------
             case 18:
                 if (!follower.isBusy()) {
                     stop();
