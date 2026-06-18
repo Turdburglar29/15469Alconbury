@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import pedroPathing.subsystems.TurretController;
+import pedroPathing.subsystems.TurretControllerRed;
 import pedroPathing.subsystems.TurretControllerRedAuto;
 
 @Autonomous(name = "RedLong", group = "Auto")
@@ -28,11 +29,20 @@ import pedroPathing.subsystems.TurretControllerRedAuto;
 public class RedLong extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int bankVelocity = 1225;
+    private static final int farVelocity = 1800;
+    private static final int idlVelocity = 800;
+    private final double kF = 1.0 / 1200; //lower second number to increase speed up
+    private final double kP = 0.0012                                                                            ; //increase if throughput is slow
+
+    // === Distance thresholds (inches) ===
+    private final double dNear = 20;
+    private final double dFar = 140;
     private DcMotor intake;
     private TurretControllerRedAuto turretController;
     private DcMotorEx flywheel;
     private DcMotorEx flywheel2;
     private Servo BootKick;
+    private Servo hood;
     private Servo ballrelease;
     private RevBlinkinLedDriver led;
     private ElapsedTime slowDownTimer = new ElapsedTime();
@@ -84,6 +94,7 @@ public class RedLong extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
+
 
     // --- PIDController inner class (kept) ---
     private static class PIDController {
@@ -212,7 +223,7 @@ public class RedLong extends OpMode {
         ballrelease = hardwareMap.get(Servo.class, "ballrelease");
         BootKick = hardwareMap.get(Servo.class, "BootKick");
         led = hardwareMap.get(RevBlinkinLedDriver.class, "led");
-        Servo hood = hardwareMap.get(Servo.class, "hood");
+        hood = hardwareMap.get(Servo.class, "hood");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -277,7 +288,7 @@ public class RedLong extends OpMode {
     private void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-
+                hood.setPosition(0.6);
                 follower.setMaxPower(0.5);
                 follower.followPath(scorePreload, true);
 
@@ -285,8 +296,18 @@ public class RedLong extends OpMode {
                 break;
 
             case 1:
-                if (!follower.isBusy()) {
-                    //insert shot code here------------------------------------------------------
+                ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+
+                if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    intake.setPower(1);
+                }
+
+                if(shotTimer.milliseconds() > 5000) {
+                    setPathState(2);
+                    ((DcMotorEx) flywheel).setVelocity(idlVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(idlVelocity);
                 }
                 break;
 
@@ -321,6 +342,19 @@ public class RedLong extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     //insert shot code here------------------------------------------------------
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                        intake.setPower(1);
+                    }
+
+                    if(shotTimer.milliseconds() > 5000) {
+                        setPathState(6);
+                        ((DcMotorEx) flywheel).setVelocity(idlVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(idlVelocity);
+                    }
                     slowDownTimer.reset();
                 }
                 break;
@@ -368,9 +402,21 @@ public class RedLong extends OpMode {
             case 11:
                 if (!follower.isBusy()) {
                     //insert shot code here------------------------------------------------------
-                    setPathState(12);
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                        intake.setPower(1);
+                    }
+
+                    if(shotTimer.milliseconds() > 5000) {
+                        setPathState(12);
+                        ((DcMotorEx) flywheel).setVelocity(idlVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(idlVelocity);
+                    }
+                    slowDownTimer.reset();
                 }
-                slowDownTimer.reset();
                 break;
 
             case 12:
@@ -414,9 +460,21 @@ public class RedLong extends OpMode {
             case 17:
                 if (!follower.isBusy()) {
                     //insert shot code here------------------------------------------------------
-                    setPathState(18);
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                        intake.setPower(1);
+                    }
+
+                    if(shotTimer.milliseconds() > 5000) {
+                        setPathState(18);
+                        ((DcMotorEx) flywheel).setVelocity(idlVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(idlVelocity);
+                    }
+                    slowDownTimer.reset();
                 }
-                slowDownTimer.reset();
                 break;
 
             case 18:
@@ -460,9 +518,21 @@ public class RedLong extends OpMode {
             case 23:
                 if (!follower.isBusy()) {
                     //insert shot code here------------------------------------------------------
-                    setPathState(24);
+                    ((DcMotorEx) flywheel).setVelocity(bankVelocity);
+                    ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
+
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                        intake.setPower(1);
+                    }
+
+                    if(shotTimer.milliseconds() > 5000) {
+                        setPathState(24);
+                        ((DcMotorEx) flywheel).setVelocity(idlVelocity);
+                        ((DcMotorEx) flywheel2).setVelocity(idlVelocity);
+                    }
+                    slowDownTimer.reset();
                 }
-                slowDownTimer.reset();
                 break;
 
             case 24:
@@ -481,6 +551,18 @@ public class RedLong extends OpMode {
 
     // ---------------- LOOP ----------------
     @Override
+    public void start() {
+        follower.startTeleopDrive();
+    }
+
+    // === PF controller ===
+    private double computeFlywheelPower(double targetVel, double measuredVel) {
+        double ff = kF * targetVel;
+        double error = targetVel - measuredVel;
+        double pTerm = kP * error;
+        double power = ff + pTerm;
+        return Math.max(-1.0, Math.min(1.0, power));
+    }
     public void loop() {
 
         // These loop the movements of the robot
@@ -490,6 +572,19 @@ public class RedLong extends OpMode {
         if (turretController != null) {
             follower.update();
             autonomousPathUpdate();
+
+            Pose p = follower.getPose();
+            double dx = TurretControllerRed.GOAL_X - p.getX();
+            double dy = TurretControllerRed.GOAL_Y - p.getY();
+            double distance = Math.hypot(dx, dy);
+
+            double t = (distance - dNear) / (dFar - dNear);
+            t = Math.max(0, Math.min(1, t));
+
+            double targetVelocity = bankVelocity + t * (farVelocity - bankVelocity);
+
+            double measuredVel = flywheel.getVelocity();
+            double flyPower = computeFlywheelPower(targetVelocity, measuredVel);
 
             // flywheel PID/manual control (unchanged)
             if (flywheelPidEnabled && flywheel != null) {
@@ -550,7 +645,6 @@ public class RedLong extends OpMode {
                 turretController.update();
             }
             /* ---------------- TELEMETRY ---------------- */
-            Pose p = follower.getPose();
             double fieldAngle = Math.atan2(TurretControllerRedAuto.GOAL_Y - p.getY(),
                     TurretControllerRedAuto.GOAL_X - p.getX());
             double desiredRad = TurretControllerRedAuto.wrapForTelemetry(

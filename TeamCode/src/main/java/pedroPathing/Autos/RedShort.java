@@ -94,7 +94,7 @@ public class RedShort extends OpMode {
     //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
     //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-    private final Pose park = new Pose(42, 55, Math.toRadians(176));
+    private final Pose park = new Pose(90, 75, Math.toRadians(360));
     //  private PathChain ;-------------------------------------------------------------------------
     private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
     //--------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ public class RedShort extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                hood.setPosition(0.5);
+                hood.setPosition(0.6);
                 follower.setMaxPower(0.95);
                 follower.followPath(scorePreload, true);
                 setPathState(1);
@@ -305,11 +305,11 @@ public class RedShort extends OpMode {
                 if(shotTimer.milliseconds() > 4000) {
                     setPathState(17);
                 }
-                break; // -------------------------------------------------------------------------------------------
+                break; // -------------------------------------------------------------------------------------------*/
             case 17:
                 follower.followPath(Park, true);
                 setPathState(18);
-                break; ?*/// -------------------------------------------------------------------------------------------
+                break; // -------------------------------------------------------------------------------------------
             case 18:
                 if (!follower.isBusy()) {
                     stop();
