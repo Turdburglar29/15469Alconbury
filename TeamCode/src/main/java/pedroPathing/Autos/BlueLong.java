@@ -19,14 +19,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import pedroPathing.subsystems.TurretController;
+import pedroPathing.subsystems.TurretControllerBlueAuto;
 
 @Autonomous(name = "BlueLong", group = "Auto")
 public class BlueLong extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int bankVelocity = 1225;
     private DcMotor intake;
-    private TurretController turretController;
+    private TurretControllerBlueAuto turretController;
     private DcMotorEx flywheel;
     private DcMotorEx flywheel2;
     private Servo BootKick;
@@ -298,14 +298,10 @@ public class BlueLong extends OpMode {
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    if (!shootingSequenceStarted) startShootingSequence();
-                    boolean done = handleShootingCycle();
-                    if (done) {
-                        BootKick.setPosition(0.6);
-                        shootingSequenceStarted = false;
+                    //insert shot code here------------------------------------------------------
                         setPathState(2);
                     }
-                }
+
                 break;
             case 2:
                 BootKick.setPosition(0.6);
@@ -333,14 +329,10 @@ public class BlueLong extends OpMode {
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    if (!shootingSequenceStarted) startShootingSequence();
-                    boolean done = handleShootingCycle();
-                    if (done) {
-                        slowDownTimer.reset();
-                        shootingSequenceStarted = false;
+                    //insert shot code here------------------------------------------------------
                         setPathState(6);
                     }
-                }
+
                 break;
             case 6:
                 follower.followPath(Pickup2, true);
@@ -378,13 +370,9 @@ public class BlueLong extends OpMode {
                 break;
             case 11:
                 if (!follower.isBusy()) {
-                    if (!shootingSequenceStarted) startShootingSequence();
-                    boolean done = handleShootingCycle();
-                    if (done) {
-                        shootingSequenceStarted = false;
+                    //insert shot code here------------------------------------------------------
                         setPathState(12);
                     }
-                }
                 slowDownTimer.reset();
                 break;
             case 12:
@@ -500,16 +488,26 @@ public class BlueLong extends OpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
 
         // instantiate TurretController and enable hold-at-zero immediately
-        turretController = new TurretController(hardwareMap, "turret", follower);
+        turretController = new TurretControllerBlueAuto(hardwareMap, "turret", follower);
         turretController.setHoldTargetTick(0);
         turretController.setHoldGains(0.9, 0.01, 0.12);
         turretController.setHoldAtZeroEnabled(true);
+
+        turretController.setHeadingCcwPositive(false);
+        turretController.setTickSoftLimitsEnabled(true);
+        turretController.setTickLimits(-1650, 1050);
+        turretController.setSoftMarginTicks(1);
+        turretController.setSlowZoneTicks(15);
+
+      //  follower.setStartingPose(new Pose(33, 120, Math.toRadians(270))); needs changed
+        turretController.setMountOffsetRad(Math.toRadians(-165.6));
 
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         ballrelease = hardwareMap.get(Servo.class,"ballrelease");
         BootKick = hardwareMap.get(Servo.class,"BootKick");
         led = hardwareMap.get(RevBlinkinLedDriver.class,"led");
+        Servo hood = hardwareMap.get(Servo.class, "hood");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);

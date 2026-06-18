@@ -21,53 +21,117 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import pedroPathing.subsystems.TurretController;
-import pedroPathing.subsystems.TurretControllerRed;
+import pedroPathing.subsystems.TurretControllerRedAuto;
 
 @Autonomous(name = "RedLong", group = "Auto")
 
 public class RedLong extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
-    private static final int IDLVelocity = 500;
-    private static final int bankVelocity = 1690;
-    private static final int medVelocity = 750;
-    private static final int farVelocity = 1000;
-    private static final int maxVelocity = 2000;
-    private static final int intakeVelocity = 1400;
+    private static final int bankVelocity = 1225;
     private DcMotor intake;
-    private DcMotor kickstand;
-    private DcMotor flywheel;
-    private DcMotor flywheel2;
-
-    private TurretControllerRed turret;
-
-    private Servo sort1;
-    private Servo hood;
+    private TurretControllerRedAuto turretController;
+    private DcMotorEx flywheel;
+    private DcMotorEx flywheel2;
     private Servo BootKick;
     private Servo ballrelease;
     private RevBlinkinLedDriver led;
-    double hue;
-    boolean lastCircle = false;
-    private MathFunctions AngleUtils;
-    private double turretEncoderRadians;
     private ElapsedTime slowDownTimer = new ElapsedTime();
-    void setSafePower(DcMotor motor,double targetPower0){
-        final double SLEW_RATE=0.2;
-        double currentPower=motor.getPower();
 
-        double desiredChange=currentPower;
-        double limitedChange=Math.max(-SLEW_RATE,Math.min(desiredChange,SLEW_RATE));
+    // flywheel and shooting fields
+    private ElapsedTime flywheelEnableTimer = new ElapsedTime();
+    private final double flywheelSpinUpDuration = 1.1;
+    private final double flywheelSpinUpPower = 1;
+    private static final double FW_KF = 0.0008;
 
-        motor.setPower(currentPower += limitedChange);
-    }
+    private static final double MANUAL_KP = 0.007;
+    private static final double MANUAL_KI = 0.000001;
+    private static final double MANUAL_KD = 0.00005;
+    private double fwIntegrator = 0.0;
+    private double fwLastError = 0.0;
+    private double fwLastTime = -1.0;
+    private final double OVERSHOOT_MARGIN = 30.0;
+    private final double HOLDING_POWER_AFTER_OVERSHOOT = 0.25;
+
+    // PID constants used to construct the legacy PIDController
+    private static final double FW_KP = 0.006;
+    private static final double FW_KI = 0.000001;
+    private static final double FW_KD = 0.00005;
+
+    // --- Flywheel PID / control fields (class scope) ---
+    private RedLong.PIDController flywheelPid;
+    private double flywheelTargetVelocity = 0.0;
+    private boolean flywheelPidEnabled = false;
+
+    private ElapsedTime feedTimer = new ElapsedTime();
+    private int shotsFired = 0;
+    private final long feedIntervalMs = 400;
+    private final long pauseBetweenFeedsMs = 600;
+    private final long kickDurationMs = 1500;
+    private boolean kickInProgress = false;
+    private ElapsedTime kickTimer = new ElapsedTime();
+    private final long safetyTimeoutMs = 7000;
+
+    private enum ShootState {WAIT_FOR_READY, FEED_INTAKE, PAUSE_AFTER_FEED, BOOTKICK, DONE}
+
+    private RedLong.ShootState shootState = RedLong.ShootState.WAIT_FOR_READY;
+    private boolean feedTimerStarted = false;
+    private boolean shootingSequenceStarted = false;
+
+    private final double READY_LOWER_MARGIN = 0.0;
+    private final double READY_UPPER_MARGIN = 30.0;
+    private final boolean intakeDuringKick = true;
+
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime clipTimer = new ElapsedTime();
-    static final double COUNTS_PER_MOTOR_REV = 537.6898;   // goBilda 5202 Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 19.2032;     // goBilda 5202 Gear ratio reduction
-    static final double WHEEL_DIAMETER_INCHES = 3.77953;     // goBilda 5202 Wheel diameter
-    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
-    double startTime;
+    private Timer pathTimer, opmodeTimer;
+
+    // --- PIDController inner class (kept) ---
+    private static class PIDController {
+        private double kP, kI, kD;
+        private double integral = 0.0;
+        private double lastError = 0.0;
+        private double lastTimestamp = -1.0;
+        private double outputMin = 0.0;
+        private double outputMax = 1.0;
+
+        PIDController(double kP, double kI, double kD) {
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
+        }
+
+        void setOutputLimits(double min, double max) {
+            this.outputMin = min;
+            this.outputMax = max;
+        }
+
+        void reset() {
+            integral = 0.0;
+            lastError = 0.0;
+            lastTimestamp = -1.0;
+        }
+
+        double update(double target, double measurement, double timestamp) {
+            double error = target - measurement;
+            if (lastTimestamp < 0) {
+                lastTimestamp = timestamp;
+                lastError = error;
+                return clamp(kP * error);
+            }
+            double dt = Math.max(1e-6, timestamp - lastTimestamp);
+            integral += error * dt;
+            double derivative = (error - lastError) / dt;
+            double output = kP * error + kI * integral + kD * derivative;
+            lastError = error;
+            lastTimestamp = timestamp;
+            return clamp(output);
+        }
+
+        private double clamp(double v) {
+            return Math.max(outputMin, Math.min(outputMax, v));
+        }
+    }
+
 
     // ---------------- PATH STATE ----------------
     private int pathState;
@@ -118,7 +182,6 @@ public class RedLong extends OpMode {
         telemetry.addData("Status", "Resetting Encoders");
         telemetry.update();
 
-
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -128,34 +191,47 @@ public class RedLong extends OpMode {
         follower.setStartingPose(startPose);
         buildPaths();
 
-        follower = new Follower(hardwareMap);
-        //follower.setStartingPose(new Pose(30, 75, Math.toRadians(180)));
-        follower.setStartingPose(new Pose(33, 120, Math.toRadians(270)));
-
-        /* === TURRET INIT === */
-        turret = new TurretControllerRed(hardwareMap, "turret", follower);
-        turret.setHeadingCcwPositive(false);
-        turret.setTickSoftLimitsEnabled(true);
-        turret.setTickLimits(-1650, 1050);
-        turret.setSoftMarginTicks(1);
-        turret.setSlowZoneTicks(15);
-
-        turret.setMountOffsetRad(Math.toRadians(177));
-
-        telemetry.update();
         intake = hardwareMap.get(DcMotor.class, "intake");
-        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
-        ballrelease = hardwareMap.get(Servo.class,"ballrelease");
-        BootKick = hardwareMap.get(Servo.class,"BootKick");
-        hood = hardwareMap.get(Servo.class,"hood");
-        led = hardwareMap.get(RevBlinkinLedDriver.class,"led");
-        // shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // instantiate TurretController and enable hold-at-zero immediately
+        turretController = new TurretControllerRedAuto(hardwareMap, "turret", follower);
+        turretController.setHoldTargetTick(0);
+        turretController.setHoldGains(0.9, 0.01, 0.12);
+        turretController.setHoldAtZeroEnabled(true);
+        turretController.setHeadingCcwPositive(false);
+        turretController.setTickSoftLimitsEnabled(true);
+        turretController.setTickLimits(-1650, 1050);
+        turretController.setSoftMarginTicks(1);
+        turretController.setSlowZoneTicks(15);
+
+        //  follower.setStartingPose(new Pose(33, 120, Math.toRadians(270))); needs changed
+        turretController.setMountOffsetRad(Math.toRadians(-165.6));
+
+        flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+        ballrelease = hardwareMap.get(Servo.class, "ballrelease");
+        BootKick = hardwareMap.get(Servo.class, "BootKick");
+        led = hardwareMap.get(RevBlinkinLedDriver.class, "led");
+        Servo hood = hardwareMap.get(Servo.class, "hood");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        flywheelPid = new RedLong.PIDController(FW_KP, FW_KI, FW_KD);
+        flywheelPid.setOutputLimits(0.0, 1.0);
+        flywheelPid.reset();
+        flywheelPidEnabled = false;
+        flywheelEnableTimer.reset();
+
+        feedTimer.reset();
+        kickTimer.reset();
+        BootKick.setPosition(0.0);
+
+        fwIntegrator = 0.0;
+        fwLastError = 0.0;
+        fwLastTime = -1.0;
     }
 
     // ---------------- BUILD PATHS ----------------
@@ -210,13 +286,11 @@ public class RedLong extends OpMode {
 
             case 1:
                 if (!follower.isBusy()) {
-
-
+                    //insert shot code here------------------------------------------------------
                 }
                 break;
 
             case 2:
-
 
 
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
@@ -246,7 +320,7 @@ public class RedLong extends OpMode {
 
             case 5:
                 if (!follower.isBusy()) {
-
+                    //insert shot code here------------------------------------------------------
                     slowDownTimer.reset();
                 }
                 break;
@@ -293,6 +367,7 @@ public class RedLong extends OpMode {
 
             case 11:
                 if (!follower.isBusy()) {
+                    //insert shot code here------------------------------------------------------
                     setPathState(12);
                 }
                 slowDownTimer.reset();
@@ -338,6 +413,7 @@ public class RedLong extends OpMode {
 
             case 17:
                 if (!follower.isBusy()) {
+                    //insert shot code here------------------------------------------------------
                     setPathState(18);
                 }
                 slowDownTimer.reset();
@@ -383,6 +459,7 @@ public class RedLong extends OpMode {
 
             case 23:
                 if (!follower.isBusy()) {
+                    //insert shot code here------------------------------------------------------
                     setPathState(24);
                 }
                 slowDownTimer.reset();
@@ -410,50 +487,102 @@ public class RedLong extends OpMode {
         follower.update();
         autonomousPathUpdate();
 
-        if (turret != null) {
-            turret.update();
+        if (turretController != null) {
+            follower.update();
+            autonomousPathUpdate();
+
+            // flywheel PID/manual control (unchanged)
+            if (flywheelPidEnabled && flywheel != null) {
+                double now = runtime.seconds();
+                double measured = flywheel.getVelocity();
+                double target = flywheelTargetVelocity;
+                double power;
+                if (flywheelEnableTimer.seconds() < flywheelSpinUpDuration) {
+                    power = flywheelSpinUpPower;
+                    fwIntegrator = 0.0;
+                    fwLastError = target - measured;
+                    fwLastTime = now;
+                } else {
+                    double error = target - measured;
+                    double dt = (fwLastTime < 0) ? 0.02 : Math.max(1e-6, now - fwLastTime);
+                    double derivative = (fwLastTime < 0) ? 0.0 : (error - fwLastError) / dt;
+                    double provisionalPid = MANUAL_KP * error + MANUAL_KD * derivative + MANUAL_KI * fwIntegrator;
+                    double ff = FW_KF * target;
+                    double provisionalPower = provisionalPid + ff;
+                    boolean outputSaturatedHigh = provisionalPower > 1.0;
+                    boolean outputSaturatedLow = provisionalPower < 0.0;
+                    if (!outputSaturatedHigh && !outputSaturatedLow) fwIntegrator += error * dt;
+                    else {
+                        if (outputSaturatedHigh && error < 0) fwIntegrator += error * dt;
+                        if (outputSaturatedLow && error > 0) fwIntegrator += error * dt;
+                    }
+                    double pidOut = MANUAL_KP * error + MANUAL_KI * fwIntegrator + MANUAL_KD * derivative;
+                    double ffTerm = FW_KF * target;
+                    power = pidOut + ffTerm;
+                    if (measured > target + OVERSHOOT_MARGIN) {
+                        power = Math.min(power, HOLDING_POWER_AFTER_OVERSHOOT);
+                        fwIntegrator = 0.0;
+                    }
+                    power = Math.max(0.0, Math.min(1.0, power));
+                    fwLastError = error;
+                    fwLastTime = now;
+
+                }
+                flywheel.setPower(power);
+                flywheel2.setPower(power);
+            }
+
+            // telemetry and LED
+            try { telemetry.addData("intake Velocity", ((DcMotorEx) intake).getVelocity()); } catch (Exception e) {}
+            double measuredFW = 0.0;
+            try { measuredFW = flywheel.getVelocity(); } catch (Exception e) {}
+            telemetry.addData("Flywheel Velocity", measuredFW);
+            telemetry.addData("shotsFired", shotsFired);
+            telemetry.addData("shootState", shootState);
+            telemetry.addData("feedTimer ms", feedTimer.milliseconds());
+            telemetry.addData("kickTimer ms", kickTimer.milliseconds());
+            telemetry.addData("kickInProgress", kickInProgress);
+            telemetry.update();
+            telemetry.update();
+
+
+            if (turretController != null) {
+                turretController.update();
+            }
+            /* ---------------- TELEMETRY ---------------- */
+            Pose p = follower.getPose();
+            double fieldAngle = Math.atan2(TurretControllerRedAuto.GOAL_Y - p.getY(),
+                    TurretControllerRedAuto.GOAL_X - p.getX());
+            double desiredRad = TurretControllerRedAuto.wrapForTelemetry(
+                    fieldAngle - (turretController.getHeadingSign() * p.getHeading()) - turretController.getMountOffsetRad()
+            );
+            int desiredTicks = (int) Math.round(desiredRad * (TurretControllerRedAuto.TURRET_TICKS_PER_REV / (2.0 * Math.PI)));
+
+            int actualTicks = ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "turret")).getCurrentPosition();
+
+
+            // Feedback to Driver Hub
+            telemetry.addData("path state", pathState);
+            telemetry.addData("x", follower.getPose().getX());
+            telemetry.addData("y", follower.getPose().getY());
+            telemetry.addData("heading", follower.getPose().getHeading());
+
+
+
+            /* Telemetry Outputs of our Follower */
+            telemetry.addData("X", follower.getPose().getX());
+            telemetry.addData("Y", follower.getPose().getY());
+            telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+
+            /*/Tells you Flywheel Velocity */
+            telemetry.addData("intake Velocity", ((DcMotorEx) intake).getVelocity());
+            //telemetry.addData("Flywheel Velocity", ((DcMotorEx) shooter1).getVelocity());
+            telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel).getVelocity());
+            telemetry.update();
+
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET);
         }
 
-        /* ---------------- TELEMETRY ---------------- */
-        /* ---------------- TURRET UPDATE (ALWAYS) ---------------- */
-        if (turret != null) {
-            turret.update();
-        }
 
-        /* ---------------- TELEMETRY ---------------- */
-        Pose p = follower.getPose();
-        double fieldAngle = Math.atan2(TurretController.GOAL_Y - p.getY(),
-                TurretController.GOAL_X - p.getX());
-        double desiredRad = TurretController.wrapForTelemetry(
-                fieldAngle - (turret.getHeadingSign() * p.getHeading()) - turret.getMountOffsetRad()
-        );
-        int desiredTicks = (int) Math.round(desiredRad * (TurretController.TURRET_TICKS_PER_REV / (2.0 * Math.PI)));
-
-        int actualTicks = ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "turret")).getCurrentPosition();
-
-
-
-        // Feedback to Driver Hub
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-
-
-
-        /* Telemetry Outputs of our Follower */
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-
-        /*/Tells you Flywheel Velocity */
-        telemetry.addData("intake Velocity", ((DcMotorEx) intake).getVelocity());
-        //telemetry.addData("Flywheel Velocity", ((DcMotorEx) shooter1).getVelocity());
-        telemetry.addData("Flywheel Velocity", ((DcMotorEx) flywheel).getVelocity());
-        telemetry.update();
-
-        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET);
     }
-
-
 }
