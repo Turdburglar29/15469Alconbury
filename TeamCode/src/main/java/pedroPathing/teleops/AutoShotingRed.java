@@ -33,7 +33,7 @@ public class AutoShotingRed extends OpMode {
     private boolean lastCircle = false;
 
     // Velocity endpoints for interpolation
-    private static final int bankVelocity = 700;
+    private static final int bankVelocity = 1000;
     private static final int farVelocity = 1800;
 
     private TurretControllerRed turret;
@@ -60,7 +60,7 @@ public class AutoShotingRed extends OpMode {
         turret.setTickLimits(-1650, 1050);
         turret.setSoftMarginTicks(1);
         turret.setSlowZoneTicks(15);
-        turret.setMountOffsetRad(Math.toRadians(177));
+        turret.setMountOffsetRad(Math.toRadians(-177));
 
         /* === SHOOTER INIT === */
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -138,7 +138,6 @@ public class AutoShotingRed extends OpMode {
 
             // === SHOOT FROM ANYWHERE ===
             ballrelease.setPosition(0.5);
-            hood.setPosition(0.65);
 
             flywheel.setPower(flyPower);
             flywheel2.setPower(flyPower);
@@ -150,7 +149,7 @@ public class AutoShotingRed extends OpMode {
             }
 
             if (shotTimer.milliseconds() > 700) {
-                intake.setPower(-0.8);
+                intake.setPower(-0.9);
             }
 
         } else {
@@ -161,7 +160,7 @@ public class AutoShotingRed extends OpMode {
             intake.setPower(0);
             led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
 
-            if (gamepad1.dpad_right) intake.setPower(1);
+            if (gamepad1.dpad_right) hood.setPosition(0.6);
 
             if (gamepad1.left_bumper) {
                 ballrelease.setPosition(0.9);
@@ -169,8 +168,7 @@ public class AutoShotingRed extends OpMode {
                 BootKick.setPosition(0.7);
             }
 
-            if (gamepad1.dpad_left) BootKick.setPosition(1);
-            else BootKick.setPosition(0);
+            if (gamepad1.dpad_left) hood.setPosition(0.55);
 
             if (gamepad1.dpad_down)
                 turret.setMountOffsetRad(turret.getMountOffsetRad() + .03);

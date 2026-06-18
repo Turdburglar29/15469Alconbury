@@ -27,7 +27,7 @@ import pedroPathing.subsystems.TurretControllerRedAuto;
 public class RedShort extends OpMode {
     private ElapsedTime shotTimer = new ElapsedTime();
     private static final int IDLVelocity = 500;
-    private static final int bankVelocity = 1690;
+    private static final int bankVelocity = 1890;
     private static final int medVelocity = 750;
     private static final int farVelocity = 1000;
     private static final int maxVelocity = 2000;
@@ -77,7 +77,7 @@ public class RedShort extends OpMode {
     private final Pose pickup2CP1 = new Pose(95, 39, Math.toRadians(360));
     private final Pose pickup2CP2 = new Pose(89, 42.5, Math.toRadians(360));
     //line 7 Push Bar ------------------------------------------------------------------------------
-    private final Pose pushBarPose = new Pose(104, 58, Math.toRadians(360));
+    private final Pose pushBarPose = new Pose(108, 58, Math.toRadians(360));
     private final Pose pushBarCP1 = new Pose(70, 50, Math.toRadians(360));
     private final Pose pushBarCP2 = new Pose(75, 50, Math.toRadians(360));
     private final Pose pushBarCP3 = new Pose(80, 50, Math.toRadians(360));
@@ -94,7 +94,7 @@ public class RedShort extends OpMode {
     //  private final Pose score3CP1 = new Pose(25, 90, Math.toRadians(180));
     //  private final Pose score3CP2 = new Pose(30, 65, Math.toRadians(190));
     //line 10 Park----------------------------------------------------------------------------------
-    private final Pose park = new Pose(90, 75, Math.toRadians(360));
+    private final Pose park = new Pose(80, 65, Math.toRadians(360));
     //  private PathChain ;-------------------------------------------------------------------------
     private Path scorePreload,  Pickup1,Score1,Pickup2,PushBar,Score2,Pickup3,Score3,Park;
     //--------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ public class RedShort extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                hood.setPosition(0.6);
+                hood.setPosition(0.65);
                 follower.setMaxPower(0.95);
                 follower.followPath(scorePreload, true);
                 setPathState(1);
@@ -141,12 +141,12 @@ public class RedShort extends OpMode {
                 ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                 ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
 
-                if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {//starts shooter
+                if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 4000)) {//starts shooter
                     led.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                     intake.setPower(1);
                 }
 
-                if(shotTimer.milliseconds() > 4000) {
+                if(shotTimer.milliseconds() > 5000) {
                     setPathState(2);
                 }
 
@@ -201,11 +201,11 @@ public class RedShort extends OpMode {
                     //starts shooter
                     ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                     ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity -5  && (shotTimer.milliseconds() > 4000)) {
                         ballrelease.setPosition(0.5);
                         intake.setPower(1);
                     }
-                    if(shotTimer.milliseconds() > 4000) {
+                    if(shotTimer.milliseconds() > 5000) {
                         setPathState(7);
                     }
 
@@ -257,11 +257,11 @@ public class RedShort extends OpMode {
                     //starts shooter
                     ((DcMotorEx) flywheel).setVelocity(bankVelocity);
                     ((DcMotorEx) flywheel2).setVelocity(bankVelocity);
-                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 3000)) {
+                    if ((!follower.isBusy()) && ((DcMotorEx) flywheel2).getVelocity() >= -bankVelocity - 5 && (shotTimer.milliseconds() > 4000)) {
                         intake.setPower(1);
                     }
                 }
-                if(shotTimer.milliseconds() > 4000) {
+                if(shotTimer.milliseconds() > 5000) {
                     setPathState(17);
                 }
                 slowDownTimer.reset();
